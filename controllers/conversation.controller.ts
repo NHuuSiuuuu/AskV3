@@ -134,8 +134,8 @@ module.exports.chat = async (req: Request, res: Response) => {
     }
     // console.log("queryVector", queryVector);
 
-    // Bước 6: Retrieval - tìm các chunk gần nghĩa nhất
-    const retrievedResult = await pool.query(
+    // Bước 6: semantic search (tìm mục tiêu theo ngữ nghĩa) theo kỹ thuật vector search
+    const semanticResult = await pool.query(
       `
       SELECT
         c.id,
@@ -151,33 +151,105 @@ module.exports.chat = async (req: Request, res: Response) => {
         ON d.id = c.document_id
       WHERE d.status = 'active'
       ORDER BY c.embedding <=> $1::vector
-      LIMIT 5
+      LIMIT 10
       `,
       [JSON.stringify(queryVector)],
     );
 
-    const retrievedChunks = retrievedResult.rows;
+    const semanticChunks = semanticResult.rows;
 
-    // Nếu retrievedChunks >=0.75
-    // if (retrievedChunks.length === 0) {
-    //   const answer = "Tôi chưa tìm thấy thông tin này trong tài liệu hiện có.";
+    // Bước 6.1 retrieved bằng full text search
+    // Tạo tsquery
+    const keywordQueryResult = await pool.query(
+      `
+      SELECT replace(
+        plainto_tsquery('simple', $1)::text,
+        ' & ',
+        ' | '
+      )::tsquery AS query
+  `,
+      [cleanQuestion],
+    );
 
-    //   await pool.query(
-    //     `
-    //     INSERT INTO messages
-    //       (conversation_id, role, content, sources)
-    //     VALUES
-    //       ($1, 'assistant', $2, '[]'::jsonb)
-    //   `,
-    //     [conversationId, answer],
-    //   );
+    const keywordQuery = keywordQueryResult.rows[0].query;
 
-    //   return res.status(200).json({
-    //     answer,
-    //     sources: [],
-    //   });
-    // }
-    // console.log("retrievedChunks", retrievedChunks);
+    const keywordResult = await pool.query(
+      `
+        SELECT
+          c.id,
+          c.document_id,
+          c.content,
+          c.page,
+          d.title,
+          d.doc_type,
+          d.issued_date,
+
+          ts_rank_cd(
+            to_tsvector('simple', c.content),
+            $1::tsquery
+          ) AS keyword_score
+
+        FROM chunks c
+
+        JOIN documents d
+          ON d.id = c.document_id
+
+        WHERE d.status = 'active'
+
+          AND to_tsvector('simple', c.content)
+              @@ $1::tsquery
+
+        ORDER BY keyword_score DESC
+
+        LIMIT 10
+  `,
+      [keywordQuery],
+    );
+
+    const keywordChunk = keywordResult.rows;
+
+    const RRF_K = 60;
+    const chunkMap = new Map<number, any>();
+
+    // Lưu kết quả semantic seach vào Map
+    for (let i = 0; i < semanticChunks.length; i++) {
+      const chunk = semanticChunks[i];
+      const semanticRank = i + 1;
+      const semanticScore = 1 / (RRF_K + semanticRank);
+      chunkMap.set(chunk.id, {
+        ...chunk,
+
+        hybridScore: semanticScore,
+      });
+    }
+
+    // Lưu kết quả keyword seach vào Map
+    for (let i = 0; i < keywordChunk.length; i++) {
+      const chunk = keywordChunk[i];
+      const keywordRank = i + 1;
+      const keywordScore = 1 / (RRF_K + keywordRank);
+
+      // Kiểm tra chunk cũ đã có chưa nếu có thì chỉ cộng thêm điểm hybrid vào là được
+      const existingChunk = chunkMap.get(chunk.id);
+      if (existingChunk) {
+        existingChunk.hybridScore += keywordScore;
+        console.log("đã tồn tại rồi");
+      } else {
+        chunkMap.set(chunk.id, {
+          ...chunk,
+          hybridScore: keywordScore,
+        });
+      }
+    }
+
+    // Láy ra 5 chunk tốt nhất Sắp xếp giảm dần
+    const retrievedChunks = [...chunkMap.values()]
+      .sort(
+        (a, b) =>
+          b.hybridScore - a.hybridScore ||
+          Number(b.similarity) - Number(a.similarity),
+      )
+      .slice(0, 5);
 
     // Bước 7: Ghép các chunk thành context
     const context = retrievedChunks
