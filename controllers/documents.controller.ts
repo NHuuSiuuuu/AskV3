@@ -1,4 +1,4 @@
-﻿const { pool } = require("../pool");
+const { pool } = require("../pool");
 import type { Request, Response } from "express";
 import type { PoolClient } from "pg";
 import { z } from "zod";
@@ -232,3 +232,76 @@ module.exports.create = async (req: Request, res: Response) => {
     return res.status(500).json({ message, documentId });
   }
 };
+
+// Lấy danh sách tài liệu cho admin
+module.exports.list = async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT id, title, doc_type, issued_date, status, error_message, uploaded_by, created_at, updated_at
+      FROM documents
+      ORDER BY created_at DESC
+      `,
+    );
+
+    return res.status(200).json({
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy danh sách tài liệu:", error);
+    return res.status(500).json({
+      message: "Không lấy được danh sách tài liệu.",
+    });
+  }
+};
+
+// Xóa tài liệu
+module.exports.deleteDocument = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "ID tài liệu là bắt buộc." });
+    }
+
+    await pool.query("DELETE FROM chunks WHERE document_id = $1", [id]);
+    const deleted = await pool.query(
+      "DELETE FROM documents WHERE id = $1 RETURNING *",
+      [id],
+    );
+
+    if (deleted.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy tài liệu để xóa." });
+    }
+
+    return res.status(200).json({
+      message: "Đã xóa tài liệu thành công.",
+      id: Number(id),
+    });
+  } catch (error) {
+    console.error("Lỗi xóa tài liệu:", error);
+    return res.status(500).json({ message: "Không xóa được tài liệu." });
+  }
+};
+
+// Xem / tải file tài liệu
+module.exports.getFile = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      "SELECT file_path, title FROM documents WHERE id = $1",
+      [id],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy tài liệu." });
+    }
+    const doc = result.rows[0];
+    const absolutePath = path.resolve(doc.file_path);
+    return res.sendFile(absolutePath);
+  } catch (error) {
+    console.error("Lỗi tải file tài liệu:", error);
+    return res.status(500).json({ message: "Không tải được file tài liệu." });
+  }
+};
+

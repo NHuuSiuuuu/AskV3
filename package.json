@@ -1,6 +1,8 @@
 {
   "scripts": {
     "start": "nodemon --exec \"node --inspect -r ts-node/register\" index.ts",
+    "client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
     "db:seed-admin": "ts-node scripts/seed-admin.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

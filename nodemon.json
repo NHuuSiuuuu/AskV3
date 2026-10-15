@@ -1,0 +1,5 @@
+{
+  "watch": ["controllers", "middleware", "routes", "validators", "index.ts", "pool.ts"],
+  "ext": "ts,js,json",
+  "exec": "node -r ts-node/register index.ts"
+}

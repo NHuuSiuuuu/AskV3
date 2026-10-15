@@ -7,6 +7,8 @@ const authRoute = require("./authRoute");
 module.exports = (app: Express): void => {
   app.use("/admin", authRoute);
   app.use("/admin/documents", documentRoute);
+  app.use("/documents", documentRoute);
   app.use("/admin/sessions", sessionRoute);
+  app.use("/session", sessionRoute);
   app.use("/conversation", conversationRoute);
 };

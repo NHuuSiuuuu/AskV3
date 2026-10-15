@@ -8,8 +8,18 @@ module.exports.create = async (req: Request, res: Response) => {
       RETURNING id, created_at, last_seen_at
     `);
 
+    const session = result.rows[0];
+
+    // Thiết lập cookie session_id (30 ngày)
+    res.cookie("session_id", session.id, {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      sameSite: "lax",
+      path: "/",
+    });
+
     return res.status(201).json({
-      data: result.rows[0],
+      data: session,
     });
   } catch (error) {
     console.error("Lỗi tạo session:", error);
