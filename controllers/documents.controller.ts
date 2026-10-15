@@ -298,6 +298,8 @@ module.exports.getFile = async (req: Request, res: Response) => {
     }
     const doc = result.rows[0];
     const absolutePath = path.resolve(doc.file_path);
+
+    // Gửi file tài liệu đến client
     return res.sendFile(absolutePath);
   } catch (error) {
     console.error("Lỗi tải file tài liệu:", error);

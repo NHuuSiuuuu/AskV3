@@ -54,7 +54,27 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             </div>
 
             {/* Action buttons dưới tin nhắn */}
-            <div className="mt-3 flex items-center justify-end gap-2 border-t border-slate-100 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-2">
+              {/* Nguồn tài liệu (left) */}
+              {message.sources && message.sources.length > 0 && (
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Trích dẫn:</span>
+                  {message.sources
+                    .filter((src, i, arr) => arr.findIndex(s => s.documentId === src.documentId) === i)
+                    .map((src) => (
+                      <a
+                        key={src.documentId}
+                        href={`/documents/${src.documentId}/file`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-blue-600 hover:underline"
+                      >
+                        {src.title || `Document ${src.documentId}`}
+                      </a>
+                    ))}
+                </div>
+              )}
+              {/* Nút sao chép (right) */}
               <button
                 onClick={handleCopy}
                 className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded hover:bg-slate-100 transition"
@@ -73,9 +93,12 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 )}
               </button>
             </div>
+
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
