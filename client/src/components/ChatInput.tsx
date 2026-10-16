@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { SendHorizontal, Loader2, Plus, ChevronDown, Check } from "lucide-react";
-import type { ChatModel } from "../types";
 
 export interface ModelOption {
   id: string;
@@ -40,8 +39,8 @@ interface ChatInputProps {
   onSend: (message: string) => void;
   loading: boolean;
   disabled?: boolean;
-  currentModel?: ChatModel;
-  onSelectModel?: (model: ChatModel) => void;
+  currentModel?: any;
+  onSelectModel?: (model: any) => void;
   models?: ModelOption[];
 }
 
@@ -53,7 +52,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   onSend,
   loading,
   disabled = false,
-  currentModel = "flash",
+  currentModel = "gemini-3.1-flash-lite",
   onSelectModel,
   models = DEFAULT_CHAT_MODELS,
 }) => {
@@ -123,22 +122,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 pb-4 sm:pb-6">
-      {/* Khung pill input đúng giao diện Gemini */}
       <div className="relative flex items-center gap-2 bg-[#f0f4f9] hover:bg-[#e9eef6] focus-within:bg-white
       border border-slate-200/80  rounded-full px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs transition-all duration-200">
-        {/* Nút cộng (+) bên trái giống Gemini */}
-        <button
-          type="button"
-          className="p-1.5 sm:p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 rounded-full transition flex-shrink-0 cursor-pointer"
-          title="Tùy chọn bổ sung"
-          onClick={() => {
-            textareaRef.current?.focus();
-          }}
-        >
-          <Plus className="w-5 h-5 stroke-[2.2]" />
-        </button>
-
-        {/* Ô nhập nội dung */}
         <textarea
           ref={textareaRef}
           value={content}

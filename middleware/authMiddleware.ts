@@ -4,7 +4,11 @@ const jwt = require("jsonwebtoken");
 module.exports.verifyToken = (req: any, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(" ")[1];
+    const bearerToken = authHeader && authHeader.split(" ")[1];
+    const token =
+      bearerToken ||
+      req.cookies?.admin_token ||
+      req.cookies?.h_ask_admin_token;
 
     if (!token) {
       return res.status(401).json({

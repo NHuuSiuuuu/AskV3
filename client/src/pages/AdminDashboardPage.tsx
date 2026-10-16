@@ -8,7 +8,6 @@ import {
   Search,
   MessageSquare,
   CheckCircle,
-  Clock,
   AlertCircle,
   RefreshCw,
   AlertTriangle,
@@ -94,7 +93,6 @@ export const AdminDashboardPage: React.FC = () => {
   // Thống kê nhanh
   const totalCount = documents.length;
   const activeCount = documents.filter((d) => d.status === 'active').length;
-  const processingCount = documents.filter((d) => d.status === 'processing').length;
   const failedCount = documents.filter((d) => d.status === 'failed').length;
 
   return (
@@ -206,18 +204,6 @@ export const AdminDashboardPage: React.FC = () => {
                 Đang hoạt động
               </p>
               <p className="text-2xl font-bold text-emerald-600 mt-0.5">{activeCount}</p>
-            </div>
-          </div>
-
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Đang xử lý
-              </p>
-              <p className="text-2xl font-bold text-amber-600 mt-0.5">{processingCount}</p>
             </div>
           </div>
 

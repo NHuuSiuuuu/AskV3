@@ -11,7 +11,29 @@ import type {
 // URL backend được cấu hình qua biến môi trường VITE_API_URL hoặc mặc định dùng http://localhost:3001
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-const ADMIN_TOKEN_KEY = 'h_ask_admin_token';
+const ADMIN_COOKIE_NAME = 'admin_token';
+
+/**
+ * Tiện ích quản lý Cookie phía Client
+ */
+export const cookieUtils = {
+  get(name: string): string | null {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  },
+
+  set(name: string, value: string, days = 7): void {
+    if (typeof document === 'undefined') return;
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  },
+
+  remove(name: string): void {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+  },
+};
 
 /**
  * Hàm gọi API chung với cấu hình credentials và headers tự động
@@ -23,8 +45,8 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...(options.headers as Record<string, string>),
   };
 
-  // Đính kèm token admin nếu có
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  // Đính kèm token admin nếu có trong Cookie (không dùng localStorage)
+  const token = cookieUtils.get(ADMIN_COOKIE_NAME)
   if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -168,16 +190,15 @@ export const conversationApi = {
 export const adminAuthApi = {
   /**
    * Đăng nhập quản trị viên bằng email và password
+   * Token được lưu vào Cookie, không lưu trong localStorage
    */
   async login(email: string, password: string): Promise<LoginResponse> {
     const res = await request<LoginResponse>('/admin/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    if (res.token) {
-      localStorage.setItem(ADMIN_TOKEN_KEY, res.token);
-    }
-    return res;
+   
+    return res;   
   },
 
   /**
@@ -191,17 +212,27 @@ export const adminAuthApi = {
   },
 
   /**
-   * Đăng xuất quản trị viên
+   * Đăng xuất quản trị viên: Xoá Cookie và báo backend huỷ session cookie
    */
   logout(): void {
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    cookieUtils.remove(ADMIN_COOKIE_NAME);
+    try {
+      localStorage.removeItem(ADMIN_COOKIE_NAME);
+    } catch {
+      // Bỏ qua
+    }
+    // Gửi yêu cầu đăng xuất tới backend để xoá Cookie máy chủ
+    request('/admin/logout', { method: 'POST' }).catch(() => {
+      // Bỏ qua nếu lỗi mạng
+    });
   },
 
   /**
-   * Kiểm tra xem có token admin trong storage không
+   * Kiểm tra xem có token admin trong Cookie không (không lưu/đọc ở localStorage)
    */
   isAuthenticated(): boolean {
-    return Boolean(localStorage.getItem(ADMIN_TOKEN_KEY));
+    const token = cookieUtils.get(ADMIN_COOKIE_NAME) 
+    return Boolean(token);
   },
 };
 

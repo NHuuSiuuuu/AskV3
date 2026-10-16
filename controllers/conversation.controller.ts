@@ -6,7 +6,7 @@ import {
 import type { Request, Response } from "express";
 import { TaskType } from "@google/generative-ai";
 import { getChatModel } from "../config/geminiChat";
-
+import { buildPromptRag } from "../prompts/rag.prompt"
 
 module.exports.createConversation = async (req: Request, res: Response) => {
   try {
@@ -307,29 +307,12 @@ module.exports.chat = async (req: Request, res: Response) => {
       )
       .join("\n\n");
     // Bước 9: Prompt gồm history + context + câu hỏi hiện tại
-    const prompt = `
-        Bạn là trợ lý hỏi đáp thông tin.
+    const prompt = buildPromptRag({
+      historyText,
+      context,
+      cleanQuestion
+    })
 
-        Yêu cầu:
-        - Trả lời bằng tiếng Việt.
-        - Với thông tin mang tính dữ kiện, chỉ sử dụng dữ liệu có trong phần TÀI LIỆU THAM KHẢO.
-        - Không tự bịa thông tin.
-        - Có thể sử dụng LỊCH SỬ HỘI THOẠI để hiểu ngữ cảnh câu hỏi.
-        - Nếu tài liệu không đủ thông tin để trả lời, hãy nói:
-          "Tôi chưa tìm thấy thông tin này trong tài liệu hiện có."
-        - Trả lời rõ ràng, dễ hiểu, không cần đưa đường dẫn file PDF.
-
-        LỊCH SỬ HỘI THOẠI:
-        ${historyText || "Chưa có lịch sử hội thoại."}
-
-        TÀI LIỆU THAM KHẢO:
-        ${context || "Không tìm thấy tài liệu liên quan."}
-
-        CÂU HỎI HIỆN TẠI:
-        ${cleanQuestion}
-
-        TRẢ LỜI:
-      `;
 
     // Bước 10. Gọi gemini
     const geminiChat = getChatModel(model)
