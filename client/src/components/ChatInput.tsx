@@ -65,11 +65,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             type="button"
             onClick={() => handleSubmit()}
             disabled={!content.trim() || loading || disabled}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-              content.trim() && !loading && !disabled
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${content.trim() && !loading && !disabled
                 ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                 : "bg-slate-100 text-slate-400 cursor-not-allowed"
-            }`}
+              }`}
             title="Gửi câu hỏi (Enter)"
           >
             {loading ? (

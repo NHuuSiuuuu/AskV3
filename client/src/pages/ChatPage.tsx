@@ -237,12 +237,12 @@ export const ChatPage: React.FC = () => {
           prev.map((c) =>
             c.id === conversationId && c.title === "Cuộc trò chuyện mới"
               ? {
-                  ...c,
-                  title:
-                    trimmedText.length > 45
-                      ? trimmedText.slice(0, 42) + "..."
-                      : trimmedText,
-                }
+                ...c,
+                title:
+                  trimmedText.length > 45
+                    ? trimmedText.slice(0, 42) + "..."
+                    : trimmedText,
+              }
               : c,
           ),
         );

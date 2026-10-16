@@ -5,6 +5,7 @@ import {
 } from "@langchain/google-genai";
 import type { Request, Response } from "express";
 import { TaskType } from "@google/generative-ai";
+import { geminiChat } from "../config/geminiChat";
 
 module.exports.createConversation = async (req: Request, res: Response) => {
   try {
@@ -47,11 +48,11 @@ module.exports.chat = async (req: Request, res: Response) => {
   });
 
   // Bộ tạo chat Gemini
-  const model = new ChatGoogleGenerativeAI({
-    model: process.env.GEMINI_CHAT_MODEL || "gemini-3.8-flash",
-    apiKey: process.env.GEMINI_API_KEY,
-    temperature: 0.2,
-  });
+  // const model = new ChatGoogleGenerativeAI({
+  //   model: process.env.GEMINI_CHAT_MODEL || "gemini-3.8-flash",
+  //   apiKey: process.env.GEMINI_API_KEY,
+  //   temperature: 0.2,
+  // });
 
   try {
     const { conversationId } = req.params;
@@ -168,7 +169,6 @@ module.exports.chat = async (req: Request, res: Response) => {
     if (queryVector.length !== 768) {
       throw new Error("Vector câu hỏi không đúng 768 chiều.");
     }
-    // console.log("queryVector", queryVector);
 
     // Bước 6: semantic search (tìm mục tiêu theo ngữ nghĩa) theo kỹ thuật vector search
     const semanticResult = await pool.query(
@@ -208,6 +208,7 @@ module.exports.chat = async (req: Request, res: Response) => {
     );
 
     const keywordQuery = keywordQueryResult.rows[0].query;
+    console.log("keywordQuery", keywordQuery);
 
     const keywordResult = await pool.query(
       `
@@ -243,6 +244,7 @@ module.exports.chat = async (req: Request, res: Response) => {
     );
 
     const keywordChunk = keywordResult.rows;
+    console.log("keywordChunk", keywordChunk);
 
     const RRF_K = 60;
     const chunkMap = new Map<number, any>();
@@ -333,7 +335,7 @@ module.exports.chat = async (req: Request, res: Response) => {
       `;
 
     // Bước 10. Gọi gemini
-    const aiResponse = await model.invoke(prompt);
+    const aiResponse = await geminiChat.invoke(prompt);
     let answer: string;
     if (typeof aiResponse.content === "string") {
       answer = aiResponse.content;
