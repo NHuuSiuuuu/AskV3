@@ -5,7 +5,6 @@ import {
   MoreVertical,
   Trash2,
   Sparkles,
-  ShieldCheck,
   X,
   AlertTriangle,
 } from 'lucide-react';

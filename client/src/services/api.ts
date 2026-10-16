@@ -126,7 +126,8 @@ export const conversationApi = {
   async sendMessage(
     conversationId: string | null | undefined,
     question: string,
-    sessionId?: string | null
+    sessionId?: string | null,
+    model?: string
   ): Promise<{
     conversation?: Conversation;
     conversationId: string;
@@ -145,7 +146,7 @@ export const conversationApi = {
       sources: DocumentSource[];
     }>(endpoint, {
       method: 'POST',
-      body: JSON.stringify({ question, sessionId }),
+      body: JSON.stringify({ question, sessionId, model }),
     });
   },
 

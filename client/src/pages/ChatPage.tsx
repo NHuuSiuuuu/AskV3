@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Menu, Sparkles, AlertCircle } from "lucide-react";
-import type { Conversation, Message } from "../types";
+import type { Conversation, Message, ChatModel } from "../types";
 import { sessionApi, conversationApi } from "../services/api";
 import { getStoredSessionId, storeSessionId } from "../utils/session";
 import { Sidebar } from "../components/Sidebar";
@@ -24,6 +24,17 @@ export const ChatPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Model được chọn: "flash" hoặc "pro" (lưu vào localStorage để ghi nhớ)
+  const [selectedModel, setSelectedModel] = useState<ChatModel>(() => {
+    const saved = localStorage.getItem("preferred_chat_model");
+    return saved === "pro" ? "pro" : "flash";
+  });
+
+  const handleModelChange = (model: ChatModel) => {
+    setSelectedModel(model);
+    localStorage.setItem("preferred_chat_model", model);
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // Lưu ID cuộc trò chuyện vừa tạo để tránh gọi lại API nạp tin nhắn khi navigate cập nhật URL
@@ -193,11 +204,12 @@ export const ChatPage: React.FC = () => {
       setSending(true);
       setError(null);
 
-      // Gọi API chat: gửi kèm sessionId nếu là cuộc trò chuyện mới
+      // Gọi API chat: gửi kèm sessionId và selectedModel
       const response = await conversationApi.sendMessage(
         conversationId,
         trimmedText,
         currentSessionId,
+        selectedModel,
       );
 
       // Thêm câu trả lời của AI vào danh sách
@@ -354,7 +366,12 @@ export const ChatPage: React.FC = () => {
 
         {/* Khung nhập câu hỏi cố định phía dưới */}
         <div className="flex-shrink-0 bg-gradient-to-t from-[#f8fafd] via-[#f8fafd] to-transparent pt-2">
-          <ChatInput onSend={handleSendMessage} loading={sending} />
+          <ChatInput
+            onSend={handleSendMessage}
+            loading={sending}
+            currentModel={selectedModel}
+            onSelectModel={handleModelChange}
+          />
         </div>
       </main>
     </div>

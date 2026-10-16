@@ -1,8 +1,7 @@
 /**
  * Tiện ích quản lý Session cho người dùng khách (không cần đăng nhập)
+ * Session ID được lưu trong cookie, tự động gửi kèm mỗi request qua credentials: 'include'
  */
-
-const SESSION_STORAGE_KEY = 'h_ask_session_id';
 
 /**
  * Đọc cookie theo tên
@@ -24,22 +23,15 @@ function setCookie(name: string, value: string, days = 30) {
 }
 
 /**
- * Lấy session_id hiện tại từ cookie hoặc localStorage dự phòng
+ * Lấy session_id hiện tại từ cookie
  */
 export function getStoredSessionId(): string | null {
-  // Ưu tiên đọc từ cookie
-  const cookieSession = getCookie('session_id');
-  if (cookieSession) {
-    return cookieSession;
-  }
-  // Dự phòng từ localStorage
-  return localStorage.getItem(SESSION_STORAGE_KEY);
+  return getCookie('session_id');
 }
 
 /**
- * Lưu session_id vào cả cookie và localStorage
+ * Lưu session_id vào cookie
  */
 export function storeSessionId(sessionId: string): void {
   setCookie('session_id', sessionId, 30);
-  localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
 }

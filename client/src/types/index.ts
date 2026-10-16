@@ -1,4 +1,9 @@
 /**
+ * Kiểu dữ liệu mô hình AI hỗ trợ (có thể mở rộng thêm nhiều model)
+ */
+export type ChatModel = 'flash' | 'pro' | string;
+
+/**
  * Kiểu dữ liệu đại diện cho một Session người dùng
  */
 export interface Session {

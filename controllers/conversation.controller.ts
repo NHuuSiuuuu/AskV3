@@ -5,7 +5,8 @@ import {
 } from "@langchain/google-genai";
 import type { Request, Response } from "express";
 import { TaskType } from "@google/generative-ai";
-import { geminiChat } from "../config/geminiChat";
+import { getChatModel } from "../config/geminiChat";
+
 
 module.exports.createConversation = async (req: Request, res: Response) => {
   try {
@@ -47,18 +48,14 @@ module.exports.chat = async (req: Request, res: Response) => {
     taskType: TaskType.RETRIEVAL_QUERY,
   });
 
-  // Bộ tạo chat Gemini
-  // const model = new ChatGoogleGenerativeAI({
-  //   model: process.env.GEMINI_CHAT_MODEL || "gemini-3.8-flash",
-  //   apiKey: process.env.GEMINI_API_KEY,
-  //   temperature: 0.2,
-  // });
-
   try {
     const { conversationId } = req.params;
-    const { question, sessionId: bodySessionId } = req.body;
-    let sessionId = bodySessionId || (req as any).cookies?.session_id;
+    const { question, model } = req.body;
+    let sessionId = (req as any).cookies?.session_id;
     console.log("conversationId", conversationId);
+    console.log("question", question);
+    console.log("model", model);
+    console.log("sessionId", req.cookies?.session_id);
 
     // Bước 1: Validate dữ liệu đầu vào
     if (!question || typeof question !== "string" || !question.trim()) {
@@ -208,7 +205,7 @@ module.exports.chat = async (req: Request, res: Response) => {
     );
 
     const keywordQuery = keywordQueryResult.rows[0].query;
-    console.log("keywordQuery", keywordQuery);
+    // console.log("keywordQuery", keywordQuery);
 
     const keywordResult = await pool.query(
       `
@@ -335,6 +332,7 @@ module.exports.chat = async (req: Request, res: Response) => {
       `;
 
     // Bước 10. Gọi gemini
+    const geminiChat = getChatModel(model)
     const aiResponse = await geminiChat.invoke(prompt);
     let answer: string;
     if (typeof aiResponse.content === "string") {
