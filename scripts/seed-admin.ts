@@ -1,6 +1,7 @@
-require("dotenv").config();
-const { pool } = require("../pool");
-const bcrypt = require("bcryptjs");
+import dotenv from "dotenv";
+dotenv.config();
+import { pool } from "../pool";
+import bcrypt from "bcryptjs";
 
 async function seedAdmin() {
   try {

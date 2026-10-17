@@ -5,9 +5,7 @@ export const createDocumentSchema = z.object({
     .string({ error: "title phải là chuỗi." })
     .trim()
     .min(1, { error: "title không được để trống." }),
-  docType: z.enum(["regulation", "announcement", "form", "guide", "other"], {
-    error: "docType phải là regulation, announcement, form, guide hoặc other.",
-  }),
+  docType: z.string({ error: "docType phải là chuỗi." }),
   issuedDate: z.string({
     error: "issuedDate phải là ngày hợp lệ theo định dạng YYYY-MM-DD.",
   }),

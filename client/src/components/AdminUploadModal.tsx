@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { X, Upload, FileText, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
-import { adminDocumentApi } from '../services/api';
+import { X, Upload, FileText, AlertCircle } from 'lucide-react';
 
 interface AdminUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSubmit: (formData: FormData, title: string) => void;
 }
 
 /**
@@ -14,18 +13,15 @@ interface AdminUploadModalProps {
 export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
   isOpen,
   onClose,
-  onSuccess,
+  onSubmit,
 }) => {
   const [title, setTitle] = useState('');
-  const [docType, setDocType] = useState<string>('regulation');
+  const [docType, setDocType] = useState<string>('quy_che_dao_tao');
   const [issuedDate, setIssuedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
   const [file, setFile] = useState<File | null>(null);
-
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -41,7 +37,12 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -55,35 +56,25 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
       return;
     }
 
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      formData.append('docType', docType);
-      formData.append('issuedDate', issuedDate);
-      formData.append('uploaded_by', '1'); // ID admin
-      formData.append('filePath', file); // Multer nhận ở trường filePath
+    const formData = new FormData();
+    formData.append('title', title.trim());
+    formData.append('docType', docType);
+    formData.append('issuedDate', issuedDate);
+    formData.append('uploaded_by', '1'); // ID admin
+    formData.append('filePath', file); // Multer nhận ở trường filePath
 
-      await adminDocumentApi.uploadDocument(formData);
-      setIsSuccess(true);
+    const submittedTitle = title.trim();
 
-      setTimeout(() => {
-        setIsSuccess(false);
-        onSuccess();
-        onClose();
-        // Reset form
-        setTitle('');
-        setFile(null);
-      }, 1200);
-    } catch (err: any) {
-      console.error('Lỗi upload tài liệu:', err);
-      setError(
-        err.message ||
-          'Không thể xử lý tài liệu. Vui lòng kiểm tra lại định dạng file hoặc kết nối API Gemini.'
-      );
-    } finally {
-      setUploading(false);
-    }
+    // Reset form fields
+    setTitle('');
+    setFile(null);
+    setError(null);
+
+    // Đóng modal ngay lập tức theo yêu cầu của user
+    onClose();
+
+    // Chuyển việc upload và xử lý vector chạy ngầm ở Dashboard
+    onSubmit(formData, submittedTitle);
   };
 
   return (
@@ -98,8 +89,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
             <h2 className="font-bold text-slate-900 text-lg">Upload tài liệu mới</h2>
           </div>
           <button
-            onClick={onClose}
-            disabled={uploading}
+            onClick={handleClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
@@ -114,14 +104,6 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
           </div>
         )}
 
-        {/* Thông báo thành công */}
-        {isSuccess && (
-          <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>Tải lên và xử lý vector tài liệu thành công!</span>
-          </div>
-        )}
-
         {/* Form Upload */}
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
@@ -133,7 +115,6 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              disabled={uploading}
               placeholder="Ví dụ: Quy chế đào tạo đại học chính quy 2026"
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
             />
@@ -147,14 +128,15 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
               <select
                 value={docType}
                 onChange={(e) => setDocType(e.target.value)}
-                disabled={uploading}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
               >
-                <option value="regulation">Quy định / Quy chế</option>
-                <option value="announcement">Thông báo</option>
-                <option value="form">Biểu mẫu</option>
-                <option value="guide">Hướng dẫn</option>
-                <option value="other">Khác</option>
+                <option value="quy_che_dao_tao">Quy chế & Quản lý đào tạo</option>
+                <option value="chuong_trinh_hoc">Chương trình đào tạo & Học phần</option>
+                <option value="chuan_dau_ra">Chuẩn đầu ra (Ngoại ngữ / Tin học)</option>
+                <option value="thuc_tap_do_an">Thực tập & Đồ án tốt nghiệp</option>
+                <option value="hoc_bong_ren_luyen">Học bổng & Điểm rèn luyện</option>
+                <option value="hoc_phi_che_do">Học phí & Chế độ chính sách</option>
+                <option value="thu_tuc_khac">Thủ tục hành chính & Tài liệu khác</option>
               </select>
             </div>
 
@@ -167,7 +149,6 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                 required
                 value={issuedDate}
                 onChange={(e) => setIssuedDate(e.target.value)}
-                disabled={uploading}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
               />
             </div>
@@ -184,7 +165,6 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                 id="file-upload"
                 accept=".pdf,.txt,.docx"
                 onChange={handleFileChange}
-                disabled={uploading}
                 className="hidden"
               />
               <label
@@ -218,8 +198,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
             <button
               type="button"
-              onClick={onClose}
-              disabled={uploading}
+              onClick={handleClose}
               className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
             >
               Hủy
@@ -227,17 +206,10 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
 
             <button
               type="submit"
-              disabled={uploading || isSuccess}
-              className="px-5 py-2.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl shadow-xs transition flex items-center gap-2 disabled:opacity-60"
+              className="px-5 py-2.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl shadow-xs transition flex items-center gap-2"
             >
-              {uploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Đang xử lý & nhúng Vector...</span>
-                </>
-              ) : (
-                <span>Tải lên & Tạo Vector</span>
-              )}
+              <Upload className="w-4 h-4" />
+              <span>Tải lên & Tạo Vector</span>
             </button>
           </div>
         </form>

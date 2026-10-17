@@ -1,8 +1,8 @@
-const express = require("express");
-const route = express.Router();
+import express from "express";
+import * as controller from "../controllers/session.controller";
 
-const controller = require("../controllers/session.controller");
+const route = express.Router();
 
 route.post("/create", controller.create);
 
-module.exports = route;
+export default route;

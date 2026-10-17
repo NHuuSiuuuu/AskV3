@@ -1,5 +1,6 @@
-require("dotenv").config();
-const { pool } = require("../pool");
+import dotenv from "dotenv";
+dotenv.config();
+import { pool } from "../pool";
 
 async function inspect() {
   const tables = ['conversations', 'messages', 'documents', 'sessions', 'admins'];

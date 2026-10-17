@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Menu, Sparkles, AlertCircle } from "lucide-react";
+import { Menu, Sparkles, AlertCircle, PanelLeftOpen, Plus } from "lucide-react";
 import type { Conversation, Message } from "../types";
 import { sessionApi, conversationApi } from "../services/api";
 import { getStoredSessionId, storeSessionId } from "../utils/session";
@@ -8,6 +8,7 @@ import { Sidebar } from "../components/Sidebar";
 import { ChatMessage } from "../components/ChatMessage";
 import { ChatInput } from "../components/ChatInput";
 import { EmptyChat } from "../components/EmptyChat";
+import bgTrongDong from "../assets/bg_trong_dong.png";
 
 /**
  * Trang chat chính của hệ thống H Ask
@@ -23,7 +24,12 @@ export const ChatPage: React.FC = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
 
   // Model được chọn: "flash" hoặc "pro" (lưu vào localStorage để ghi nhớ)
   const [selectedModel, setSelectedModel] = useState<any>(() => {
@@ -275,7 +281,16 @@ export const ChatPage: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen bg-[#f8fafd] overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden relative bg-[#f8fafd]">
+      {/* Lớp nền Trống Đồng tinh tế phong cách văn hóa HUMG cho TOÀN BỘ TRANG */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0 bg-center bg-no-repeat mix-blend-multiply opacity-35 transition-opacity duration-300"
+        style={{
+          backgroundImage: `url(${bgTrongDong})`,
+          backgroundSize: "cover",
+        }}
+      />
+
       {/* Sidebar bên trái */}
       <Sidebar
         conversations={conversations}
@@ -285,19 +300,30 @@ export const ChatPage: React.FC = () => {
         onDelete={handleDeleteConversation}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onToggle={() => setSidebarOpen((prev) => !prev)}
       />
 
       {/* Khu vực chat chính */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-transparent z-10">
         {/* Top Navbar */}
-        <header className="md:hidden h-14 border-b border-slate-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 z-10 flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="h-14 border-b border-slate-200/60 bg-white/60 backdrop-blur-md flex items-center justify-between px-3.5 sm:px-5 z-20 flex-shrink-0 transition-colors">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="hidden md:inline-flex p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Mở menu bên"
+              >
+                <PanelLeftOpen className="w-5 h-5 text-slate-700" />
+              </button>
+            )}
+
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition"
-              title="Mở danh sách hội thoại"
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Mở menu"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-5 h-5 text-slate-700" />
             </button>
 
             <div className="flex items-center gap-2">
@@ -306,11 +332,22 @@ export const ChatPage: React.FC = () => {
               </span>
             </div>
           </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleNewChat}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/80 border border-slate-200/80 rounded-xl transition-all shadow-2xs cursor-pointer"
+              title="Tạo cuộc trò chuyện mới"
+            >
+              <Plus className="w-3.5 h-3.5 text-blue-600" />
+              <span className="hidden sm:inline">Trò chuyện mới</span>
+            </button>
+          </div>
         </header>
 
         {/* Thông báo lỗi nếu có */}
         {error && (
-          <div className="mx-4 mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs sm:text-sm flex items-center justify-between shadow-xs">
+          <div className="mx-4 mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs sm:text-sm flex items-center justify-between shadow-xs relative z-10">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
@@ -325,7 +362,7 @@ export const ChatPage: React.FC = () => {
         )}
 
         {/* Khung tin nhắn cuộn */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 relative z-10">
           {loadingMessages ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
               <Sparkles className="w-6 h-6 animate-spin text-blue-600" />
@@ -365,7 +402,7 @@ export const ChatPage: React.FC = () => {
         </div>
 
         {/* Khung nhập câu hỏi cố định phía dưới */}
-        <div className="flex-shrink-0 bg-gradient-to-t from-[#f8fafd] via-[#f8fafd] to-transparent pt-2">
+        <div className="flex-shrink-0 bg-gradient-to-t from-[#f8fafd] via-[#f8fafd]/90 to-transparent pt-2 relative z-10">
           <ChatInput
             onSend={handleSendMessage}
             loading={sending}

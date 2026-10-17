@@ -11,11 +11,22 @@ import {
   AlertCircle,
   RefreshCw,
   AlertTriangle,
+  Layers,
+  Loader2,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { AdminDocument } from '../types';
 import { adminDocumentApi, adminAuthApi } from '../services/api';
 import { AdminUploadModal } from '../components/AdminUploadModal';
+
+interface UploadTaskNotification {
+  id: string;
+  title: string;
+  status: 'uploading' | 'success' | 'error';
+  message?: string;
+}
 
 /**
  * Trang bảng điều khiển quản trị viên: Quản lý danh sách tài liệu RAG
@@ -31,8 +42,10 @@ export const AdminDashboardPage: React.FC = () => {
   const [filterType, setFilterType] = useState('all');
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadTasks, setUploadTasks] = useState<UploadTaskNotification[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null);
 
   /**
    * Tải danh sách tài liệu từ backend
@@ -81,6 +94,88 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  /**
+   * Thay đổi trạng thái tài liệu: 'processing' | 'active' | 'archived' | 'failed'
+   */
+  const handleStatusChange = async (
+    id: number,
+    newStatus: 'processing' | 'active' | 'archived' | 'failed'
+  ) => {
+    try {
+      setUpdatingStatusId(id);
+      await adminDocumentApi.updateStatus(id, newStatus);
+      setDocuments((prev) =>
+        prev.map((doc) => (doc.id === id ? { ...doc, status: newStatus } : doc))
+      );
+    } catch (err: any) {
+      console.error('Lỗi cập nhật trạng thái:', err);
+      alert(err.message || 'Không thể cập nhật trạng thái tài liệu.');
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
+
+  /**
+   * Bắt đầu xử lý tải lên tài liệu và tạo vector ngầm
+   */
+  const handleUploadSubmit = async (formData: FormData, title: string) => {
+    const taskId = Date.now().toString() + Math.random().toString(36).slice(2, 6);
+
+    // Thêm task đang chạy vào danh sách thông báo
+    setUploadTasks((prev) => [
+      ...prev,
+      { id: taskId, title, status: 'uploading' },
+    ]);
+
+    try {
+      await adminDocumentApi.uploadDocument(formData);
+
+      // Cập nhật trạng thái thành công
+      setUploadTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                status: 'success',
+                message: 'Tải lên & phân đoạn tạo vector nhúng thành công!',
+              }
+            : t
+        )
+      );
+
+      // Cập nhật lại bảng dữ liệu
+      loadDocuments();
+
+      // Tự động ẩn thông báo thành công sau 4 giây
+      setTimeout(() => {
+        setUploadTasks((prev) => prev.filter((t) => t.id !== taskId));
+      }, 4000);
+    } catch (err: any) {
+      console.error('Lỗi tải lên tài liệu:', err);
+      // Cập nhật trạng thái lỗi
+      setUploadTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                status: 'error',
+                message:
+                  err.message ||
+                  'Không thể xử lý tài liệu. Vui lòng kiểm tra định dạng hoặc kết nối API Gemini.',
+              }
+            : t
+        )
+      );
+    }
+  };
+
+  /**
+   * Đóng thông báo tiến trình upload
+   */
+  const removeUploadTask = (taskId: string) => {
+    setUploadTasks((prev) => prev.filter((t) => t.id !== taskId));
+  };
+
   // Lọc tài liệu theo từ khóa tìm kiếm và loại văn bản
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch = doc.title
@@ -94,6 +189,7 @@ export const AdminDashboardPage: React.FC = () => {
   const totalCount = documents.length;
   const activeCount = documents.filter((d) => d.status === 'active').length;
   const failedCount = documents.filter((d) => d.status === 'failed').length;
+  const totalChunks = documents.reduce((sum, d) => sum + (d.chunk_count || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#f8fafd] flex flex-col">
@@ -218,6 +314,18 @@ export const AdminDashboardPage: React.FC = () => {
               <p className="text-2xl font-bold text-red-600 mt-0.5">{failedCount}</p>
             </div>
           </div>
+
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Tổng Vector Chunks
+              </p>
+              <p className="text-2xl font-bold text-indigo-600 mt-0.5">{totalChunks}</p>
+            </div>
+          </div>
         </div>
 
         {/* Thanh tìm kiếm và bộ lọc */}
@@ -242,12 +350,14 @@ export const AdminDashboardPage: React.FC = () => {
               onChange={(e) => setFilterType(e.target.value)}
               className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition"
             >
-              <option value="all">Tất cả loại văn bản</option>
-              <option value="regulation">Quy định / Quy chế</option>
-              <option value="announcement">Thông báo</option>
-              <option value="form">Biểu mẫu</option>
-              <option value="guide">Hướng dẫn</option>
-              <option value="other">Khác</option>
+              <option value="quy_che_dao_tao">Quy chế & Quản lý đào tạo</option>
+              <option value="chuong_trinh_hoc">Chương trình đào tạo & Học phần</option>
+              <option value="chuan_dau_ra">Chuẩn đầu ra (Ngoại ngữ / Tin học)</option>
+              <option value="thuc_tap_do_an">Thực tập & Đồ án tốt nghiệp</option>
+              <option value="hoc_bong_ren_luyen">Học bổng & Điểm rèn luyện</option>
+              <option value="hoc_phi_che_do">Học phí & Chế độ chính sách</option>
+              <option value="thu_tuc_khac">Thủ tục hành chính & Tài liệu khác</option>
+              <option value="khac">Khác</option>
             </select>
           </div>
         </div>
@@ -276,6 +386,8 @@ export const AdminDashboardPage: React.FC = () => {
                   <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                     <th className="py-3.5 px-4 sm:px-6">Tiêu đề tài liệu</th>
                     <th className="py-3.5 px-4">Loại</th>
+                    <th className="py-3.5 px-4">Định dạng</th>
+                    <th className="py-3.5 px-4 text-center">Vector Chunks</th>
                     <th className="py-3.5 px-4">Ngày ban hành</th>
                     <th className="py-3.5 px-4">Trạng thái</th>
                     <th className="py-3.5 px-4">Ngày tạo</th>
@@ -286,35 +398,6 @@ export const AdminDashboardPage: React.FC = () => {
                   {filteredDocuments.map((doc) => {
                     const downloadUrl = adminDocumentApi.getDocumentFileUrl(doc.id);
 
-                    // Badge màu sắc cho trạng thái
-                    let statusBadge = (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Hoạt động
-                      </span>
-                    );
-                    if (doc.status === 'processing') {
-                      statusBadge = (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                          Đang xử lý
-                        </span>
-                      );
-                    } else if (doc.status === 'failed') {
-                      statusBadge = (
-                        <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
-                          title={doc.error_message || 'Xử lý thất bại'}
-                        >
-                          Thất bại
-                        </span>
-                      );
-                    } else if (doc.status === 'archived') {
-                      statusBadge = (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                          Lưu trữ
-                        </span>
-                      );
-                    }
-
                     return (
                       <tr key={doc.id} className="hover:bg-slate-50/70 transition-colors">
                         <td className="py-3.5 px-4 sm:px-6 font-semibold text-slate-800 max-w-xs sm:max-w-md truncate">
@@ -323,10 +406,44 @@ export const AdminDashboardPage: React.FC = () => {
                         <td className="py-3.5 px-4 text-slate-600 capitalize">
                           {doc.doc_type}
                         </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="px-2 py-0.5 text-xs font-semibold uppercase rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                            {doc.file_type || doc.file_extension || 'FILE'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                            {doc.chunk_count || 0} chunks
+                          </span>
+                        </td>
                         <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                           {doc.issued_date ? new Date(doc.issued_date).toLocaleDateString('vi-VN') : '—'}
                         </td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">{statusBadge}</td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <select
+                            value={doc.status}
+                            onChange={(e) =>
+                              handleStatusChange(
+                                doc.id,
+                                e.target.value as 'processing' | 'active' | 'archived' | 'failed'
+                              )
+                            }
+                            disabled={updatingStatusId === doc.id}
+                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-all ${
+                              doc.status === 'active'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                : doc.status === 'processing'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                : doc.status === 'failed'
+                                ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                                : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                            } ${updatingStatusId === doc.id ? 'opacity-50 cursor-wait' : ''}`}
+                            title="Bấm để chuyển đổi trạng thái tài liệu"
+                          >
+                            <option value="active">Hoạt động</option>
+                            <option value="archived">Lưu trữ</option>
+                          </select>
+                        </td>
                         <td className="py-3.5 px-4 text-slate-500 text-xs whitespace-nowrap">
                           {new Date(doc.created_at).toLocaleDateString('vi-VN')}
                         </td>
@@ -365,8 +482,63 @@ export const AdminDashboardPage: React.FC = () => {
       <AdminUploadModal
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
-        onSuccess={loadDocuments}
+        onSubmit={handleUploadSubmit}
       />
+
+      {/* Floating Upload Notifications */}
+      {uploadTasks.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm sm:max-w-md w-full px-4 sm:px-0 pointer-events-none animate-in fade-in slide-in-from-bottom-5 duration-200">
+          {uploadTasks.map((task) => (
+            <div
+              key={task.id}
+              className={`pointer-events-auto p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all flex items-start gap-3 ${
+                task.status === 'uploading'
+                  ? 'bg-white/95 border-blue-200 text-slate-800 shadow-blue-500/10'
+                  : task.status === 'success'
+                  ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900 shadow-emerald-500/10'
+                  : 'bg-red-50/95 border-red-200 text-red-900 shadow-red-500/10'
+              }`}
+            >
+              <div className="mt-0.5 flex-shrink-0">
+                {task.status === 'uploading' && (
+                  <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                )}
+                {task.status === 'success' && (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                )}
+                {task.status === 'error' && (
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-0.5 opacity-75">
+                  {task.status === 'uploading'
+                    ? 'Đang xử lý tài liệu'
+                    : task.status === 'success'
+                    ? 'Hoàn tất'
+                    : 'Thao tác thất bại'}
+                </p>
+                <p className="text-sm font-semibold truncate" title={task.title}>
+                  {task.title}
+                </p>
+                <p className="text-xs mt-0.5 opacity-90 leading-relaxed">
+                  {task.status === 'uploading'
+                    ? 'Đang tải file, phân đoạn & tạo vector nhúng (Gemini)...'
+                    : task.message}
+                </p>
+              </div>
+
+              <button
+                onClick={() => removeUploadTask(task.id)}
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition -mr-1 -mt-1 flex-shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Modal xác nhận xóa tài liệu */}
       {deleteConfirmId && (

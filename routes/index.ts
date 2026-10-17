@@ -1,10 +1,10 @@
 import type { Express } from "express";
-const documentRoute = require("./documentRoute");
-const sessionRoute = require("./sessionRoute");
-const conversationRoute = require("./conversationRoute");
-const authRoute = require("./authRoute");
+import documentRoute from "./documentRoute";
+import sessionRoute from "./sessionRoute";
+import conversationRoute from "./conversationRoute";
+import authRoute from "./authRoute";
 
-module.exports = (app: Express): void => {
+const setupRoutes = (app: Express): void => {
   app.use("/admin", authRoute);
   app.use("/admin/documents", documentRoute);
   app.use("/documents", documentRoute);
@@ -12,3 +12,5 @@ module.exports = (app: Express): void => {
   app.use("/session", sessionRoute);
   app.use("/conversation", conversationRoute);
 };
+
+export default setupRoutes;

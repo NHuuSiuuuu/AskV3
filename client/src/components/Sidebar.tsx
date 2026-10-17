@@ -5,8 +5,8 @@ import {
   MoreVertical,
   Trash2,
   Sparkles,
-  X,
   AlertTriangle,
+  PanelLeftClose,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Conversation } from '../types';
@@ -19,10 +19,12 @@ interface SidebarProps {
   onDelete: (id: string) => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
+  onToggle: () => void;
 }
 
 /**
  * Sidebar bên trái hiển thị lịch sử cuộc trò chuyện và điều hướng
+ * Hỗ trợ thu gọn/mở rộng trượt mượt mà phong cách Gemini, không giật layout
  */
 export const Sidebar: React.FC<SidebarProps> = ({
   conversations,
@@ -32,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onDelete,
   isOpen,
   onClose,
+  onToggle,
 }) => {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -79,36 +82,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 md:hidden transition-opacity duration-300"
           onClick={onClose}
         />
       )}
 
-      {/* Main Sidebar Container */}
+      {/* Main Sidebar Container với hiệu ứng trượt mượt mà (smooth sliding transition) */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-72 bg-[#f0f4f9] border-r border-slate-200/90 flex flex-col transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        }`}
+        className={`
+          fixed md:relative inset-y-0 left-0 z-50 h-full bg-[#f0f4f9]/90 backdrop-blur-md border-r border-slate-200/90
+          flex flex-col flex-shrink-0 overflow-hidden
+          transition-all duration-300 ease-in-out
+          ${
+            isOpen
+              ? 'w-72 opacity-100 translate-x-0'
+              : 'w-0 opacity-0 -translate-x-full md:translate-x-0 border-r-0 pointer-events-none'
+          }
+        `}
       >
-        {/* Header: Logo & Nút đóng mobile */}
-        <div className="p-4 flex items-center justify-between border-b border-slate-200/60">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 text-slate-800 font-bold text-lg hover:opacity-90 transition-opacity"
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-sm">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="tracking-tight">H Ask</span>
-          </Link>
+        {/* Inner container giữ chiều rộng cố định w-72 để nội dung KHÔNG BAO GIỜ bị co rúm hay nhảy chữ khi trượt */}
+        <div className="w-72 h-full flex flex-col flex-shrink-0 select-none">
+          {/* Header: Logo ở bên trái & Nút thu gọn sidebar ở bên phải */}
+          <div className="h-14 px-3.5 flex items-center justify-between border-b border-slate-200/60 flex-shrink-0">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 text-slate-800 font-bold text-base hover:opacity-90 transition-opacity"
+            >
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span className="tracking-tight text-lg font-bold">H Ask</span>
+            </Link>
 
-          <button
-            onClick={onClose}
-            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            {/* Nút đóng / thu gọn sidebar nằm ở bên phải */}
+            <button
+              type="button"
+              onClick={onToggle}
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-200/70 transition-colors cursor-pointer"
+              title="Thu gọn menu bên"
+            >
+              <PanelLeftClose className="w-5 h-5" />
+            </button>
+          </div>
 
         {/* Nút Cuộc trò chuyện mới */}
         <div className="p-3">
@@ -201,6 +216,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })
           )}
+        </div>
         </div>
       </aside>
 

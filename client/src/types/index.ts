@@ -50,11 +50,15 @@ export interface Conversation {
 export interface AdminDocument {
   id: number;
   title: string;
-  doc_type: 'regulation' | 'announcement' | 'form' | 'guide' | 'other' | string;
+  doc_type: string;
+  file_type?: string;
+  file_extension?: string;
   issued_date: string | null;
   status: 'processing' | 'active' | 'archived' | 'failed' | string;
   error_message: string | null;
   uploaded_by: number | null;
+  uploader_email?: string | null;
+  chunk_count?: number;
   created_at: string;
   updated_at: string;
 }

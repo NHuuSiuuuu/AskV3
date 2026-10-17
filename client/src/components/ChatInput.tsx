@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { SendHorizontal, Loader2, Plus, ChevronDown, Check } from "lucide-react";
+import { SendHorizontal, Loader2, ChevronDown, Check } from "lucide-react";
 
 export interface ModelOption {
   id: string;

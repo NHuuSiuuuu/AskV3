@@ -1,15 +1,17 @@
-require("dotenv").config();
-const http = require("http");
-const express = require("express");
-const routes = require("../routes");
-const { pool } = require("../pool");
+import dotenv from "dotenv";
+dotenv.config();
+import http from "http";
+import express from "express";
+import routes from "../routes";
+import { pool } from "../pool";
 
 const app = express();
 app.use(express.json());
 routes(app);
 
 const server = app.listen(0);
-const port = server.address().port;
+const addr = server.address();
+const port = typeof addr === "object" && addr ? addr.port : 0;
 
 function request(options: any, body?: any): Promise<{ statusCode: number; data: any }> {
   return new Promise((resolve, reject) => {

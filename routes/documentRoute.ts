@@ -1,8 +1,8 @@
-const express = require("express");
-const route = express.Router();
-const multer = require("multer");
+import express from "express";
+import multer from "multer";
+import * as controller from "../controllers/documents.controller";
 
-const controller = require("../controllers/documents.controller");
+const route = express.Router();
 
 // Multer giữ file trong memory để controller đọc nội dung PDF/TXT/DOCX.
 const upload = multer({
@@ -10,9 +10,10 @@ const upload = multer({
 });
 
 route.get("/", controller.list);
-route.get("/list", controller.list);
 route.post("/create", upload.single("filePath"), controller.create);
+route.patch("/:id/status", controller.updateStatus);
+route.put("/:id/status", controller.updateStatus);
 route.delete("/:id", controller.deleteDocument);
 route.get("/:id/file", controller.getFile);
 
-module.exports = route;
+export default route;

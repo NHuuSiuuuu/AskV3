@@ -1,7 +1,7 @@
 import type { Response, NextFunction } from "express";
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
-module.exports.verifyToken = (req: any, res: Response, next: NextFunction) => {
+export const verifyToken = (req: any, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     const bearerToken = authHeader && authHeader.split(" ")[1];

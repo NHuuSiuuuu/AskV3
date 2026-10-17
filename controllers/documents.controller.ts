@@ -1,4 +1,4 @@
-const { pool } = require("../pool");
+import { pool } from "../pool";
 import type { Request, Response } from "express";
 import type { PoolClient } from "pg";
 import { z } from "zod";
@@ -13,7 +13,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import mammoth from "mammoth";
 
-module.exports.create = async (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   let documentId: number | undefined;
   let client: PoolClient | undefined;
 
@@ -44,7 +44,7 @@ module.exports.create = async (req: Request, res: Response) => {
       const parser = new PDFParse({ data: new Uint8Array(file.buffer) });
       try {
         const info = await parser.getInfo(); // lấy thông tin pdf, số trang
-
+        console.log("info:", info);
         if (info.total > Number(process.env.MAX_PDF_PAGES || 200)) {
           // Kiểm tra tổng số trang
           return res
@@ -52,6 +52,7 @@ module.exports.create = async (req: Request, res: Response) => {
             .json({ message: "PDF vượt quá số trang cho phép." });
         }
         const pdf = await parser.getText();
+        console.log("pdf",pdf)
         for (const page of pdf.pages) {
           if (page.text.trim()) {
             // kiểm tra xem trang có text không, nếu có thì mới push
@@ -63,7 +64,7 @@ module.exports.create = async (req: Request, res: Response) => {
             );
           }
         }
-        // console.log("docs:", docs);
+        console.log("docs:", docs);
       } catch {
         return res
           .status(400)
@@ -234,18 +235,55 @@ module.exports.create = async (req: Request, res: Response) => {
 };
 
 // Lấy danh sách tài liệu cho admin
-module.exports.list = async (req: Request, res: Response) => {
+export const list = async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       `
-      SELECT id, title, doc_type, issued_date, status, error_message, uploaded_by, created_at, updated_at
-      FROM documents
-      ORDER BY created_at DESC
+      SELECT 
+        d.id, 
+        d.title, 
+        d.doc_type, 
+        d.issued_date, 
+        d.status, 
+        d.file_path, 
+        d.error_message, 
+        d.uploaded_by, 
+        a.email AS uploader_email,
+        d.created_at, 
+        d.updated_at,
+        COUNT(c.id)::int AS chunk_count
+      FROM documents d
+      LEFT JOIN admins a ON a.id = d.uploaded_by
+      LEFT JOIN chunks c ON c.document_id = d.id
+      GROUP BY d.id, a.email
+      ORDER BY d.created_at DESC
       `,
     );
 
+    const documentsWithFileInfo = result.rows.map((doc: any) => {
+      const fileType = doc.file_path
+        ? path.extname(doc.file_path).toLowerCase().replace(".", "")
+        : "";
+
+      return {
+        id: doc.id,
+        title: doc.title,
+        doc_type: doc.doc_type,
+        file_type: fileType,
+        file_extension: fileType,
+        issued_date: doc.issued_date,
+        status: doc.status,
+        error_message: doc.error_message,
+        uploaded_by: doc.uploaded_by,
+        uploader_email: doc.uploader_email,
+        created_at: doc.created_at,
+        updated_at: doc.updated_at,
+        chunk_count: Number(doc.chunk_count) || 0,
+      };
+    });
+
     return res.status(200).json({
-      data: result.rows,
+      data: documentsWithFileInfo,
     });
   } catch (error) {
     console.error("Lỗi lấy danh sách tài liệu:", error);
@@ -256,7 +294,7 @@ module.exports.list = async (req: Request, res: Response) => {
 };
 
 // Xóa tài liệu
-module.exports.deleteDocument = async (req: Request, res: Response) => {
+export const deleteDocument = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -286,7 +324,7 @@ module.exports.deleteDocument = async (req: Request, res: Response) => {
 };
 
 // Xem / tải file tài liệu
-module.exports.getFile = async (req: Request, res: Response) => {
+export const getFile = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
@@ -306,4 +344,51 @@ module.exports.getFile = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Không tải được file tài liệu." });
   }
 };
+
+// Cập nhật trạng thái tài liệu (processing | active | archived | failed)
+export const updateStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = ["active", "archived"];
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: `Trạng thái không hợp lệ. Cho phép: ${allowedStatuses.join(", ")}`,
+      });
+    }
+
+    const docId = Number(id);
+    if (!id || isNaN(docId)) {
+      return res.status(400).json({ message: "ID tài liệu không hợp lệ." });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE documents
+      SET status = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING id, title, doc_type, status, updated_at
+      `,
+      [status, docId],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy tài liệu để cập nhật trạng thái." });
+    }
+
+    return res.status(200).json({
+      message: "Cập nhật trạng thái tài liệu thành công.",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Lỗi cập nhật trạng thái tài liệu:", error);
+    return res
+      .status(500)
+      .json({ message: "Không thể cập nhật trạng thái tài liệu." });
+  }
+};
+
 

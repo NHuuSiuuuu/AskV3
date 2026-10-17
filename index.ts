@@ -1,12 +1,12 @@
-require("dotenv").config();
-const express = require("express");
-const { neon } = require('@neondatabase/serverless');
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import { neon } from "@neondatabase/serverless";
+import routes from "./routes";
+
 const app = express();
-const routes = require("./routes");
-// Cấu hình env
 const port = process.env.PORT || 3001;
-const sql = neon(process.env.DATABASE_URL);
-const http = require("http");
+const sql = neon(process.env.DATABASE_URL || "");
 // CORS Middleware cho Vite Frontend
 app.use((req: any, res: any, next: any) => {
   const origin = req.headers.origin;
@@ -23,7 +23,10 @@ app.use((req: any, res: any, next: any) => {
     res.header("Access-Control-Allow-Origin", origin || "*");
     res.header("Access-Control-Allow-Credentials", "true");
   }
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization, X-Requested-With"

@@ -272,6 +272,19 @@ export const adminDocumentApi = {
   },
 
   /**
+   * Cập nhật trạng thái tài liệu: 'processing' | 'active' | 'archived' | 'failed'
+   */
+  async updateStatus(
+    id: number,
+    status: 'processing' | 'active' | 'archived' | 'failed'
+  ): Promise<any> {
+    return await request(`/admin/documents/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  /**
    * Lấy đường dẫn xem / tải file công khai (không lộ đường dẫn ổ đĩa)
    */
   getDocumentFileUrl(id: number): string {

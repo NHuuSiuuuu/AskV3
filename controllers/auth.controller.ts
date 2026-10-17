@@ -1,9 +1,9 @@
-const { pool } = require("../pool");
+import { pool } from "../pool";
 import type { Request, Response } from "express";
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-module.exports.login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -68,7 +68,7 @@ module.exports.login = async (req: Request, res: Response) => {
   }
 };
 
-module.exports.logout = async (_req: Request, res: Response) => {
+export const logout = async (_req: Request, res: Response) => {
   try {
     res.clearCookie("admin_token", { path: "/" });
     return res.status(200).json({
@@ -82,7 +82,7 @@ module.exports.logout = async (_req: Request, res: Response) => {
   }
 };
 
-module.exports.getMe = async (req: any, res: Response) => {
+export const getMe = async (req: any, res: Response) => {
   try {
     const admin = req.admin;
     if (!admin) {

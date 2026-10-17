@@ -1,4 +1,4 @@
-const { pool } = require("../pool");
+import { pool } from "../pool";
 import {
   ChatGoogleGenerativeAI,
   GoogleGenerativeAIEmbeddings,
@@ -8,7 +8,7 @@ import { TaskType } from "@google/generative-ai";
 import { getChatModel } from "../config/geminiChat";
 import { buildPromptRag } from "../prompts/rag.prompt"
 
-module.exports.createConversation = async (req: Request, res: Response) => {
+export const createConversation = async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.body;
     console.log("sessionId", sessionId);
@@ -39,7 +39,7 @@ module.exports.createConversation = async (req: Request, res: Response) => {
   }
 };
 
-module.exports.chat = async (req: Request, res: Response) => {
+export const chat = async (req: Request, res: Response) => {
   // Bộ tạo embedding
   const embeddings = new GoogleGenerativeAIEmbeddings({
     model: process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001",
@@ -440,7 +440,7 @@ module.exports.chat = async (req: Request, res: Response) => {
 };
 
 // Lấy danh sách cuộc trò chuyện theo session
-module.exports.getConversationsBySession = async (
+export const getConversationsBySession = async (
   req: Request,
   res: Response,
 ) => {
@@ -478,7 +478,7 @@ module.exports.getConversationsBySession = async (
 };
 
 // Lấy toàn bộ tin nhắn của một cuộc trò chuyện
-module.exports.getMessages = async (req: Request, res: Response) => {
+export const getMessages = async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;
     if (!conversationId) {
@@ -509,7 +509,7 @@ module.exports.getMessages = async (req: Request, res: Response) => {
 };
 
 // Xóa cuộc trò chuyện
-module.exports.deleteConversation = async (req: Request, res: Response) => {
+export const deleteConversation = async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;
     if (!conversationId) {

@@ -1,7 +1,7 @@
-const { pool } = require("../pool");
+import { pool } from "../pool";
 import type { Request, Response } from "express";
 
-module.exports.create = async (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   try {
     const result = await pool.query(`
       INSERT INTO sessions DEFAULT VALUES
