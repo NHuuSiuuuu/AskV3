@@ -52,7 +52,7 @@ export const create = async (req: Request, res: Response) => {
             .json({ message: "PDF vượt quá số trang cho phép." });
         }
         const pdf = await parser.getText();
-        console.log("pdf",pdf)
+        console.log("pdf", pdf)
         for (const page of pdf.pages) {
           if (page.text.trim()) {
             // kiểm tra xem trang có text không, nếu có thì mới push

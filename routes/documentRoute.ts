@@ -6,7 +6,7 @@ const route = express.Router();
 
 // Multer giữ file trong memory để controller đọc nội dung PDF/TXT/DOCX.
 const upload = multer({
-  limits: { fileSize: Number(process.env.MAX_UPLOAD_MB || 20) * 1024 * 1024 },
+  limits: { fileSize: Number(process.env.MAX_UPLOAD_MB || 50) * 1024 * 1024 },
 });
 
 route.get("/", controller.list);

@@ -15,6 +15,8 @@ import {
   Loader2,
   CheckCircle2,
   X,
+  Sparkles,
+  ArrowUpRight,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { AdminDocument } from '../types';
@@ -77,6 +79,21 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   /**
+   * Mở công cụ PDF24 OCR trong cửa sổ riêng biệt chuẩn kích thước
+   */
+  const openOcrWindow = (url: string) => {
+    const width = 1150;
+    const height = 820;
+    const left = Math.max(0, (window.screen.width - width) / 2);
+    const top = Math.max(0, (window.screen.height - height) / 2);
+    window.open(
+      url,
+      'ocr_tool_window',
+      `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`
+    );
+  };
+
+  /**
    * Xác nhận xóa tài liệu
    */
   const handleConfirmDelete = async () => {
@@ -135,10 +152,10 @@ export const AdminDashboardPage: React.FC = () => {
         prev.map((t) =>
           t.id === taskId
             ? {
-                ...t,
-                status: 'success',
-                message: 'Tải lên & phân đoạn tạo vector nhúng thành công!',
-              }
+              ...t,
+              status: 'success',
+              message: 'Tải lên & phân đoạn tạo vector nhúng thành công!',
+            }
             : t
         )
       );
@@ -157,12 +174,12 @@ export const AdminDashboardPage: React.FC = () => {
         prev.map((t) =>
           t.id === taskId
             ? {
-                ...t,
-                status: 'error',
-                message:
-                  err.message ||
-                  'Không thể xử lý tài liệu. Vui lòng kiểm tra định dạng hoặc kết nối API Gemini.',
-              }
+              ...t,
+              status: 'error',
+              message:
+                err.message ||
+                'Không thể xử lý tài liệu. Vui lòng kiểm tra định dạng hoặc kết nối API Gemini.',
+            }
             : t
         )
       );
@@ -210,6 +227,16 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => openOcrWindow('https://tools.pdf24.org/vi/ocr-pdf')}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition shadow-2xs cursor-pointer"
+            title="Mở công cụ PDF24 OCR trong cửa sổ riêng để quét tài liệu scan/chụp ảnh"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>Mở cửa sổ PDF24 OCR</span>
+            <ArrowUpRight className="w-3 h-3 text-blue-600" />
+          </button>
+
           <Link
             to="/"
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition"
@@ -244,8 +271,18 @@ export const AdminDashboardPage: React.FC = () => {
 
           <div className="flex items-center gap-2.5">
             <button
+              onClick={() => openOcrWindow('https://tools.pdf24.org/vi/ocr-pdf')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-blue-800 border border-blue-200 font-semibold text-xs sm:text-sm rounded-xl transition shadow-xs cursor-pointer"
+              title="Mở công cụ PDF24 OCR trong cửa sổ riêng để quét tài liệu scan/chụp ảnh"
+            >
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span>Mở cửa sổ PDF24 OCR</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-blue-600" />
+            </button>
+
+            <button
               onClick={loadDocuments}
-              className="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition shadow-xs"
+              className="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition shadow-xs cursor-pointer"
               title="Làm mới danh sách"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -253,7 +290,7 @@ export const AdminDashboardPage: React.FC = () => {
 
             <button
               onClick={() => setUploadModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition cursor-pointer"
             >
               <Upload className="w-4 h-4" />
               <span>Tải lên tài liệu mới</span>
@@ -429,15 +466,14 @@ export const AdminDashboardPage: React.FC = () => {
                               )
                             }
                             disabled={updatingStatusId === doc.id}
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-all ${
-                              doc.status === 'active'
+                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-all ${doc.status === 'active'
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                                 : doc.status === 'processing'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                                : doc.status === 'failed'
-                                ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-                                : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
-                            } ${updatingStatusId === doc.id ? 'opacity-50 cursor-wait' : ''}`}
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                  : doc.status === 'failed'
+                                    ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                                    : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                              } ${updatingStatusId === doc.id ? 'opacity-50 cursor-wait' : ''}`}
                             title="Bấm để chuyển đổi trạng thái tài liệu"
                           >
                             <option value="active">Hoạt động</option>
@@ -491,13 +527,12 @@ export const AdminDashboardPage: React.FC = () => {
           {uploadTasks.map((task) => (
             <div
               key={task.id}
-              className={`pointer-events-auto p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all flex items-start gap-3 ${
-                task.status === 'uploading'
+              className={`pointer-events-auto p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all flex items-start gap-3 ${task.status === 'uploading'
                   ? 'bg-white/95 border-blue-200 text-slate-800 shadow-blue-500/10'
                   : task.status === 'success'
-                  ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900 shadow-emerald-500/10'
-                  : 'bg-red-50/95 border-red-200 text-red-900 shadow-red-500/10'
-              }`}
+                    ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900 shadow-emerald-500/10'
+                    : 'bg-red-50/95 border-red-200 text-red-900 shadow-red-500/10'
+                }`}
             >
               <div className="mt-0.5 flex-shrink-0">
                 {task.status === 'uploading' && (
@@ -516,8 +551,8 @@ export const AdminDashboardPage: React.FC = () => {
                   {task.status === 'uploading'
                     ? 'Đang xử lý tài liệu'
                     : task.status === 'success'
-                    ? 'Hoàn tất'
-                    : 'Thao tác thất bại'}
+                      ? 'Hoàn tất'
+                      : 'Thao tác thất bại'}
                 </p>
                 <p className="text-sm font-semibold truncate" title={task.title}>
                   {task.title}

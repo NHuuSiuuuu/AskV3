@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Menu, Sparkles, AlertCircle, PanelLeftOpen, Plus } from "lucide-react";
+import { Sparkles, AlertCircle, PanelLeftOpen, Menu, Plus } from "lucide-react";
 import type { Conversation, Message } from "../types";
 import { sessionApi, conversationApi } from "../services/api";
 import { getStoredSessionId, storeSessionId } from "../utils/session";
@@ -305,45 +305,38 @@ export const ChatPage: React.FC = () => {
 
       {/* Khu vực chat chính */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-transparent z-10">
-        {/* Top Navbar */}
-        <header className="h-14 border-b border-slate-200/60 bg-white/60 backdrop-blur-md flex items-center justify-between px-3.5 sm:px-5 z-20 flex-shrink-0 transition-colors">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="hidden md:inline-flex p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Mở menu bên"
-              >
-                <PanelLeftOpen className="w-5 h-5 text-slate-700" />
-              </button>
-            )}
-
+        {/* Top Navbar - Chỉ hiển thị trên màn hình nhỏ (mobile < md) */}
+        <header className="md:hidden h-14 border-b border-slate-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between px-3 z-20 flex-shrink-0 relative">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-              title="Mở menu"
+              className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+              title="Mở danh sách hội thoại"
             >
-              <Menu className="w-5 h-5 text-slate-700" />
+              <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800 text-sm sm:text-base truncate max-w-[200px] sm:max-w-md">
-                {currentConversation?.title || "H Ask Assistant"}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-semibold text-slate-800 text-sm truncate max-w-[200px] sm:max-w-xs">
+                {currentConversation?.title || "H Ask"}
               </span>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleNewChat}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/80 border border-slate-200/80 rounded-xl transition-all shadow-2xs cursor-pointer"
-              title="Tạo cuộc trò chuyện mới"
-            >
-              <Plus className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Trò chuyện mới</span>
-            </button>
-          </div>
         </header>
+
+        {/* Nút Logo ở góc trên bên trái khi thu gọn sidebar trên màn hình lớn (desktop md:) */}
+        {!sidebarOpen && (
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="hidden md:inline-flex rounded-lg absolute top-3.5 left-4 z-30 text-slate-800 transition-all duration-200 group cursor-pointer"
+            title="Mở thanh bên (Sidebar)"
+          >
+            <div className="w-7 h-7 rounded-lg text-slate-600 flex items-center justify-center transition-transform">
+              <PanelLeftOpen className="w-5 h-5 " />
+            </div>
+          </button>
+        )}
 
         {/* Thông báo lỗi nếu có */}
         {error && (
@@ -362,7 +355,11 @@ export const ChatPage: React.FC = () => {
         )}
 
         {/* Khung tin nhắn cuộn */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 relative z-10">
+        <div
+          className={`flex-1 overflow-y-auto px-4 sm:px-6 py-6 ${
+            !sidebarOpen && messages.length > 0 ? "md:pt-16" : ""
+          } relative z-10`}
+        >
           {loadingMessages ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
               <Sparkles className="w-6 h-6 animate-spin text-blue-600" />
