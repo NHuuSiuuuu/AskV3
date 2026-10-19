@@ -154,7 +154,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             >
               <span>{activeModel.shortName}</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isMenuOpen ? "rotate-180 text-blue-600" : ""
+                className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isMenuOpen ? "rotate-180 text-[#0F2A4D]" : ""
                   }`}
               />
             </button>
@@ -173,17 +173,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                           onSelectModel?.(m.id);
                           setIsMenuOpen(false);
                         }}
-                        className={`w-full text-left p-2.5 rounded-xl transition-all duration-150 flex items-start gap-2.5 cursor-pointer 
-                         `}
+                        className={`w-full text-left p-2.5 rounded-xl transition-all duration-150 flex items-start gap-2.5 cursor-pointer hover:bg-[#F6F8FB]`}
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span
-                              className={`text-sm font-semibold`}
+                              className={`text-sm font-semibold ${isSelected ? "text-[#0F2A4D]" : "text-slate-800"}`}
                             >
                               {m.name}
                             </span>
-
                           </div>
                           {m.description && (
                             <p className="text-xs text-slate-500 leading-relaxed">
@@ -193,7 +191,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         </div>
 
                         {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
+                          <div className="w-5 h-5 rounded-full bg-[#0F2A4D] text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
                             <Check className="w-3 h-3 stroke-[2.5]" />
                           </div>
                         )}
@@ -211,13 +209,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             onClick={() => handleSubmit()}
             disabled={!content.trim() || loading || disabled}
             className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${content.trim() && !loading && !disabled
-              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer"
+              ? "bg-[#0F2A4D] hover:bg-[#1E3A6B] text-white shadow-xs cursor-pointer"
               : "text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 cursor-pointer"
               }`}
             title="Gửi câu hỏi (Enter)"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#0F2A4D]" />
             ) : (
               <SendHorizontal className="w-4 h-4" />
             )}
@@ -226,7 +224,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       </div>
 
       <p className="text-[11px] text-center text-slate-400 mt-2">
-        H Ask có thể đưa ra câu trả lời chưa hoàn hảo. Vui lòng đối chiếu với văn bản gốc nếu cần.
+        H-Ask có thể đưa ra câu trả lời chưa hoàn hảo. Vui lòng đối chiếu với văn bản gốc nếu cần.
       </p>
     </div>
   );

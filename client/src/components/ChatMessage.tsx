@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Sparkles, User, Copy, Check } from 'lucide-react';
+import { User, Copy, Check } from 'lucide-react';
 import type { Message } from '../types';
+import faviLogo from '../assets/favi_light.png';
 
 interface ChatMessageProps {
   message: Message;
@@ -25,10 +26,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return (
       <div className="flex justify-end mb-6">
         <div className="flex gap-3 max-w-[85%] md:max-w-[75%] items-start">
-          <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-sm shadow-sm text-sm sm:text-base leading-relaxed break-words">
+          <div className="bg-[#0F2A4D] text-white px-4 py-3 rounded-2xl rounded-tr-sm shadow-xs text-sm sm:text-base leading-relaxed break-words">
             {message.content}
           </div>
-          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div className="w-8 h-8 rounded-full bg-[#0F2A4D]/10 text-[#0F2A4D] flex items-center justify-center flex-shrink-0 mt-0.5">
             <User className="w-4 h-4" />
           </div>
         </div>
@@ -39,14 +40,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div className="flex justify-start mb-8 group">
       <div className="flex gap-3.5 max-w-[95%] md:max-w-[85%] items-start">
-        {/* Gemini Sparkles icon */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-          <Sparkles className="w-4 h-4" />
+        {/* H-Ask AI Avatar */}
+        <div className="w-8 h-8 rounded-full bg-white border border-[#CBD5E1] p-1 flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5">
+          <img
+            src={faviLogo}
+            alt="H-Ask"
+            className="w-full h-full object-contain"
+          />
         </div>
 
         {/* Nội dung tin nhắn của AI */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white border border-slate-200/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-sm text-slate-800">
+          <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-xs text-slate-800">
             <div className="markdown-body">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
@@ -67,7 +72,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                         href={`/documents/${src.documentId}/file`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-blue-600 hover:underline"
+                        className="ml-2 text-[#1E3A6B] hover:text-[#0F2A4D] font-medium underline underline-offset-2"
                       >
                         {src.title || `Document ${src.documentId}`}
                       </a>

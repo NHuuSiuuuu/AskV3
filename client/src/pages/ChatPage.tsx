@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Sparkles, AlertCircle, PanelLeftOpen, Menu, Plus } from "lucide-react";
+import { Sparkles, AlertCircle, Menu, Plus } from "lucide-react";
 import type { Conversation, Message } from "../types";
 import { sessionApi, conversationApi } from "../services/api";
 import { getStoredSessionId, storeSessionId } from "../utils/session";
@@ -9,6 +9,7 @@ import { ChatMessage } from "../components/ChatMessage";
 import { ChatInput } from "../components/ChatInput";
 import { EmptyChat } from "../components/EmptyChat";
 import bgTrongDong from "../assets/bg_trong_dong.png";
+import faviLogo from "../assets/favi_light.png";
 
 /**
  * Trang chat chính của hệ thống H Ask
@@ -281,7 +282,7 @@ export const ChatPage: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen w-full overflow-hidden relative bg-[#f8fafd]">
+    <div className="flex h-screen w-full overflow-hidden relative bg-[#F6F8FB]">
       {/* Lớp nền Trống Đồng tinh tế phong cách văn hóa HUMG cho TOÀN BỘ TRANG */}
       <div
         className="absolute inset-0 pointer-events-none z-0 bg-center bg-no-repeat mix-blend-multiply opacity-35 transition-opacity duration-300"
@@ -317,11 +318,24 @@ export const ChatPage: React.FC = () => {
             </button>
 
             <div className="flex items-center gap-2 min-w-0">
+              <img
+                src={faviLogo}
+                alt="H-Ask"
+                className="w-6 h-6 object-contain flex-shrink-0"
+              />
               <span className="font-semibold text-slate-800 text-sm truncate max-w-[200px] sm:max-w-xs">
-                {currentConversation?.title || "H Ask"}
+                {currentConversation?.title || "H-Ask"}
               </span>
             </div>
           </div>
+
+          <button
+            onClick={handleNewChat}
+            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+            title="Cuộc trò chuyện mới"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
         </header>
 
         {/* Nút Logo ở góc trên bên trái khi thu gọn sidebar trên màn hình lớn (desktop md:) */}
@@ -329,12 +343,15 @@ export const ChatPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="hidden md:inline-flex rounded-lg absolute top-3.5 left-4 z-30 text-slate-800 transition-all duration-200 group cursor-pointer"
+            className="hidden md:inline-flex items-center justify-center w-10 h-10 p-1 rounded-xl absolute top-3.5 left-4 z-30  
+          cursor-pointer"
             title="Mở thanh bên (Sidebar)"
           >
-            <div className="w-7 h-7 rounded-lg text-slate-600 flex items-center justify-center transition-transform">
-              <PanelLeftOpen className="w-5 h-5 " />
-            </div>
+            <img
+              src={faviLogo}
+              alt="Mở Sidebar"
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+            />
           </button>
         )}
 
@@ -362,7 +379,7 @@ export const ChatPage: React.FC = () => {
         >
           {loadingMessages ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-              <Sparkles className="w-6 h-6 animate-spin text-blue-600" />
+              <Sparkles className="w-6 h-6 animate-spin text-[#0F2A4D]" />
               <span className="text-sm font-medium">
                 Đang tải lịch sử trò chuyện...
               </span>
@@ -379,14 +396,18 @@ export const ChatPage: React.FC = () => {
               {sending && (
                 <div className="flex justify-start mb-8 animate-in fade-in duration-200">
                   <div className="flex gap-3.5 max-w-[85%] items-start">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 animate-pulse">
-                      <Sparkles className="w-4 h-4" />
+                    <div className="w-8 h-8 rounded-full bg-white border border-[#CBD5E1] p-1 flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 animate-pulse">
+                      <img
+                        src={faviLogo}
+                        alt="H-Ask"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                    <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-2 text-slate-600 text-sm">
+                    <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 shadow-xs flex items-center gap-2 text-slate-600 text-sm">
                       <div className="flex gap-1.5 items-center">
-                        <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce"></span>
-                        <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#0F2A4D] animate-bounce"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#0F2A4D] animate-bounce [animation-delay:0.2s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#D4AF7C] animate-bounce [animation-delay:0.4s]"></span>
                       </div>
                     </div>
                   </div>
@@ -399,7 +420,7 @@ export const ChatPage: React.FC = () => {
         </div>
 
         {/* Khung nhập câu hỏi cố định phía dưới */}
-        <div className="flex-shrink-0 bg-gradient-to-t from-[#f8fafd] via-[#f8fafd]/90 to-transparent pt-2 relative z-10">
+        <div className="flex-shrink-0 bg-gradient-to-t from-[#F6F8FB] via-[#F6F8FB]/90 to-transparent pt-2 relative z-10">
           <ChatInput
             onSend={handleSendMessage}
             loading={sending}

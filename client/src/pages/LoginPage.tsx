@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
 import { adminAuthApi } from '../services/api';
+import logoNgang from '../assets/logo.png';
 
 /**
  * Trang đăng nhập dành riêng cho Quản trị viên (Admin)
@@ -37,23 +38,27 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafd] flex flex-col justify-center items-center px-4 py-12">
+    <div className="min-h-screen bg-[#F6F8FB] flex flex-col justify-center items-center px-4 py-12">
       {/* Nút quay lại trang chat */}
       <div className="w-full max-w-md mb-6">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#0F2A4D] transition"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Quay lại trang hỏi đáp H Ask</span>
+          <span>Quay lại trang hỏi đáp H-Ask</span>
         </Link>
       </div>
 
-      <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-2xl shadow-md p-6 sm:p-8">
+      <div className="w-full max-w-md bg-white border border-[#CBD5E1]/90 rounded-2xl shadow-sm p-6 sm:p-8">
         {/* Header Form */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-xs">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="flex justify-center mb-5">
+            <img
+              src={logoNgang}
+              alt="H-Ask"
+              className="h-10 w-auto object-contain"
+            />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Đăng nhập Quản trị viên
@@ -75,7 +80,7 @@ export const LoginPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Email quản trị
+              Email Quản trị
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -88,7 +93,7 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@humg.edu.vn"
                 disabled={loading}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all disabled:opacity-50"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0F2A4D] focus:ring-2 focus:ring-[#0F2A4D]/15 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all disabled:opacity-50"
               />
             </div>
           </div>
@@ -108,7 +113,7 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 disabled={loading}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all disabled:opacity-50"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0F2A4D] focus:ring-2 focus:ring-[#0F2A4D]/15 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all disabled:opacity-50"
               />
             </div>
           </div>
@@ -116,11 +121,11 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-3 px-4 bg-[#0F2A4D] hover:bg-[#1E3A6B] active:bg-[#0A1D36] text-white font-semibold text-sm rounded-xl shadow-xs hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 <span>Đang xác thực...</span>
               </>
             ) : (
@@ -131,7 +136,7 @@ export const LoginPage: React.FC = () => {
 
         <div className="mt-6 pt-6 border-t border-slate-100 text-center">
           <p className="text-xs text-slate-400">
-            Hệ thống quản lý nội bộ H Ask Academic System
+            Hệ thống quản lý nội bộ H-Ask Academic System
           </p>
         </div>
       </div>

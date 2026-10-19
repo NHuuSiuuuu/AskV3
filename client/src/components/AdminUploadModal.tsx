@@ -83,7 +83,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
         {/* Header Modal */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#0F2A4D]/10 text-[#0F2A4D] flex items-center justify-center">
               <Upload className="w-4 h-4" />
             </div>
             <h2 className="font-bold text-slate-900 text-lg">Upload tài liệu mới</h2>
@@ -116,7 +116,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ví dụ: Quy chế đào tạo đại học chính quy 2026"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0F2A4D] focus:ring-2 focus:ring-[#0F2A4D]/15 transition"
             />
           </div>
 
@@ -128,7 +128,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
               <select
                 value={docType}
                 onChange={(e) => setDocType(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0F2A4D] focus:ring-2 focus:ring-[#0F2A4D]/15 transition"
               >
                 <option value="quy_che_dao_tao">Quy chế & Quản lý đào tạo</option>
                 <option value="chuong_trinh_hoc">Chương trình đào tạo & Học phần</option>
@@ -149,7 +149,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                 required
                 value={issuedDate}
                 onChange={(e) => setIssuedDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0F2A4D] focus:ring-2 focus:ring-[#0F2A4D]/15 transition"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
               Tệp tài liệu (PDF, TXT, DOCX) <span className="text-red-500">*</span>
             </label>
-            <div className="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-5 text-center bg-slate-50/50 transition-colors">
+            <div className="border-2 border-dashed border-[#CBD5E1] hover:border-[#D4AF7C] rounded-xl p-5 text-center bg-slate-50/50 transition-colors">
               <input
                 type="file"
                 id="file-upload"
@@ -171,7 +171,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                 htmlFor="file-upload"
                 className="cursor-pointer flex flex-col items-center justify-center gap-2"
               >
-                <FileText className="w-8 h-8 text-blue-500" />
+                <FileText className="w-8 h-8 text-[#0F2A4D]" />
                 {file ? (
                   <div>
                     <p className="text-sm font-semibold text-slate-800">{file.name}</p>
@@ -181,12 +181,12 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                   </div>
                 ) : (
                   <div>
-                    <span className="text-sm font-semibold text-blue-600 hover:underline">
+                    <span className="text-sm font-semibold text-[#0F2A4D] hover:underline">
                       Chọn file
                     </span>{' '}
                     <span className="text-sm text-slate-500">hoặc kéo thả vào đây</span>
                     <p className="text-xs text-slate-400 mt-1">
-                      Hỗ trợ PDF (tối đa 200 trang), TXT, DOCX (tối đa 20MB)
+                      Hỗ trợ PDF (tối đa 200 trang), TXT, DOCX (tối đa 50MB)
                     </p>
                   </div>
                 )}
@@ -199,14 +199,14 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
             >
               Hủy
             </button>
 
             <button
               type="submit"
-              className="px-5 py-2.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl shadow-xs transition flex items-center gap-2"
+              className="px-5 py-2.5 text-xs font-semibold bg-[#0F2A4D] hover:bg-[#1E3A6B] active:bg-[#0A1D36] text-white rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer"
             >
               <Upload className="w-4 h-4" />
               <span>Tải lên & Tạo Vector</span>

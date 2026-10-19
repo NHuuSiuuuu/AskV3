@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BookOpen, GraduationCap, FileCheck, HelpCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, FileCheck, HelpCircle } from 'lucide-react';
 
 interface EmptyChatProps {
   onSelectPrompt: (promptText: string) => void;
@@ -37,15 +37,10 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 max-w-4xl mx-auto my-auto text-center">
-      {/* Biểu tượng Gemini */}
-      <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 text-white flex items-center justify-center shadow-md mb-6">
-        <Sparkles className="w-7 h-7 animate-pulse" />
-      </div>
-
+    <div className="flex-1 flex flex-col items-center justify-center p-4 mt-5 sm:p-8 max-w-4xl mx-auto my-auto text-center">
       {/* Lời chào */}
       <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-3">
-        Xin chào, tôi là <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">H Ask</span>
+        Xin chào, tôi là <span className="bg-gradient-to-r from-[#0F2A4D] to-[#1E3A6B] bg-clip-text text-transparent">H-Ask</span>
       </h1>
       <p className="text-base sm:text-lg text-slate-600 max-w-xl mb-10 leading-relaxed font-normal">
         Trợ lý AI tra cứu thông tin chính xác từ văn bản, quy chế và quy định của trường.
@@ -59,13 +54,13 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
             <button
               key={idx}
               onClick={() => onSelectPrompt(item.prompt)}
-              className="group p-4 bg-white hover:bg-blue-50/60 border border-slate-200/90 hover:border-blue-300 rounded-xl transition-all duration-200 text-left shadow-sm hover:shadow flex flex-col justify-between"
+              className="group p-4 bg-white hover:bg-[#F6F8FB] border border-[#CBD5E1]/90  rounded-xl transition-all duration-200 text-left shadow-xs hover:shadow-md flex flex-col justify-between cursor-pointer"
             >
               <div className="flex items-center gap-2.5 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 group-hover:bg-blue-100/80 text-blue-600 flex items-center justify-center flex-shrink-0 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-[#0F2A4D]/5  text-[#0F2A4D] flex items-center justify-center flex-shrink-0 transition-colors">
                   <Icon className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-slate-800 group-hover:text-blue-900 text-sm">
+                <h3 className="font-semibold text-slate-800 group-hover:text-[#0F2A4D] text-sm transition-colors">
                   {item.title}
                 </h3>
               </div>

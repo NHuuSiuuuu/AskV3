@@ -4,12 +4,12 @@ import {
   MessageSquare,
   MoreVertical,
   Trash2,
-  Sparkles,
   AlertTriangle,
   PanelLeftClose,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Conversation } from '../types';
+import logoNgang from '../assets/logo.png';
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -106,12 +106,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="h-14 px-3.5 flex items-center justify-between border-b border-slate-200/60 flex-shrink-0">
             <Link
               to="/"
-              className="flex items-center gap-2.5 text-slate-800 font-bold text-base hover:opacity-90 transition-opacity"
+              className="flex items-center hover:opacity-90 transition-opacity py-0.5"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="tracking-tight text-lg font-bold">H Ask</span>
+              <img
+                src={logoNgang}
+                alt="H-Ask"
+                className="h-11 w-auto object-contain"
+              />
             </Link>
 
             {/* Nút đóng / thu gọn sidebar nằm ở bên phải */}
@@ -132,9 +133,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onNewChat();
               onClose();
             }}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 font-medium text-sm rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all duration-150 group"
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 bg-[#0F2A4D] hover:bg-[#1E3A6B] text-white font-medium text-sm rounded-xl shadow-xs transition-all duration-150 group cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+            <Plus className="w-4 h-4 text-[#fffff] group-hover:scale-110 transition-transform" />
             <span>Cuộc trò chuyện mới</span>
           </button>
         </div>
@@ -164,15 +165,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onSelect(conv.id);
                       onClose();
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl text-sm transition-all relative pr-9 ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl text-sm transition-all relative pr-9 cursor-pointer ${
                       isActive
-                        ? 'bg-blue-100/70 text-blue-900 font-semibold shadow-xs'
-                        : 'text-slate-700 hover:bg-slate-200/70'
+                        ? 'bg-[#0F2A4D]/10 text-[#0F2A4D] font-semibold border-l-2 border-[#D4AF7C] shadow-2xs'
+                        : 'text-slate-700 hover:bg-slate-200/60'
                     }`}
                   >
                     <MessageSquare
                       className={`w-4 h-4 flex-shrink-0 ${
-                        isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
+                        isActive ? 'text-[#0F2A4D]' : 'text-slate-400 group-hover:text-slate-600'
                       }`}
                     />
                     <span className="truncate">{conv.title || 'Cuộc trò chuyện mới'}</span>
