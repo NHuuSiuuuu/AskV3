@@ -43,7 +43,7 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
         Xin chào, tôi là <span className="bg-gradient-to-r from-[#0F2A4D] to-[#1E3A6B] bg-clip-text text-transparent">H-Ask</span>
       </h1>
       <p className="text-base sm:text-lg text-slate-600 max-w-xl mb-10 leading-relaxed font-normal">
-        Trợ lý AI tra cứu thông tin chính xác từ văn bản, quy chế và quy định của trường.
+        Trợ lý AI tra cứu thông tin chính xác từ văn bản, quy chế và quy định của trường HUMG
       </p>
 
       {/* Gợi ý câu hỏi */}

@@ -31,6 +31,38 @@ interface UploadTaskNotification {
   message?: string;
 }
 
+// Helper hiển thị nhãn loại tài liệu ngắn gọn, bỏ dấu gạch dưới
+const getDocTypeBadge = (type: string) => {
+  const map: Record<string, string> = {
+    quy_che_dao_tao: 'Quy chế',
+    chuong_trinh_hoc: 'CTĐT',
+    chuan_dau_ra: 'Chuẩn đầu ra',
+    thuc_tap_do_an: 'Thực tập/Đồ án',
+    hoc_bong_ren_luyen: 'Học bổng',
+    hoc_phi_che_do: 'Học phí',
+    thu_tuc_khac: 'Thủ tục',
+    khac: 'Khác',
+  };
+  return map[type] || type.replace(/_/g, ' ');
+};
+
+// Helper chuẩn hóa tiêu đề tài liệu chống ALL CAPS
+const formatDocTitle = (rawTitle?: string) => {
+  if (!rawTitle) return '';
+  let title = rawTitle.trim().replace(/\.(pdf|docx|doc|txt)$/i, '').trim();
+  const letters = title.replace(/[^a-zA-ZÀ-ỹ]/g, '');
+  if (letters.length > 0 && letters === letters.toUpperCase()) {
+    const lower = title.toLowerCase();
+    title = lower.replace(/^([^\p{L}]*)(\p{L})/u, (_, prefix, firstChar) => prefix + firstChar.toUpperCase());
+    const acronyms = ['HUMG', 'ĐHMĐC', 'BGDĐT', 'UBND', 'QĐ', 'TT', 'NQ', 'CNTT', 'TCNH', 'QTKD'];
+    for (const ac of acronyms) {
+      const reg = new RegExp(`(?<=^[\\s/(_\\-–—])${ac}(?=$[\\s/.,;:!?_\\-–—)]|\\b)`, 'gi');
+      title = title.replace(reg, ac);
+    }
+  }
+  return title;
+};
+
 /**
  * Trang bảng điều khiển quản trị viên: Quản lý danh sách tài liệu RAG
  */
@@ -220,27 +252,14 @@ export const AdminDashboardPage: React.FC = () => {
               alt="H-Ask"
               className="h-7 w-auto object-contain"
             />
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-[#0F2A4D]/10 text-[#0F2A4D] border border-[#0F2A4D]/20">
+            <span className="text-[18px] uppercase font-bold tracking-wider px-2 py-0.5 text-[#0F2A4D]">
               Admin
             </span>
           </Link>
           <div className="hidden md:block h-5 w-px bg-slate-200" />
-          <p className="hidden md:block text-[11px] text-slate-500">
-            Quản trị cơ sở dữ liệu văn bản & Vector RAG
-          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => openOcrWindow('https://tools.pdf24.org/vi/ocr-pdf')}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0F2A4D] bg-[#F0F4F9] hover:bg-[#E1E9F3] border border-[#CBD5E1] rounded-lg transition shadow-2xs cursor-pointer"
-            title="Mở công cụ PDF24 OCR trong cửa sổ riêng để quét tài liệu scan/chụp ảnh"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF7C]" />
-            <span>Mở cửa sổ PDF24 OCR</span>
-            <ArrowUpRight className="w-3 h-3 text-[#0F2A4D]" />
-          </button>
-
           <Link
             to="/"
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-[#0F2A4D] hover:bg-slate-50 border border-slate-200 rounded-lg transition"
@@ -421,18 +440,18 @@ export const AdminDashboardPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <div className="w-full">
+              <table className="w-full text-left border-collapse table-fixed">
                 <thead>
                   <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                    <th className="py-3.5 px-4 sm:px-6">Tiêu đề tài liệu</th>
-                    <th className="py-3.5 px-4">Loại</th>
-                    <th className="py-3.5 px-4">Định dạng</th>
-                    <th className="py-3.5 px-4 text-center">Vector Chunks</th>
-                    <th className="py-3.5 px-4">Ngày ban hành</th>
-                    <th className="py-3.5 px-4">Trạng thái</th>
-                    <th className="py-3.5 px-4">Ngày tạo</th>
-                    <th className="py-3.5 px-4 text-right">Thao tác</th>
+                    <th className="py-3 px-3 sm:px-4 w-[28%]">Tiêu đề tài liệu</th>
+                    <th className="py-3 px-2 w-[14%]">Loại</th>
+                    <th className="py-3 px-2 text-center w-[9%]">Định dạng</th>
+                    <th className="py-3 px-2 text-center w-[12%]">Vector Chunks</th>
+                    <th className="py-3 px-2 text-center w-[11%]">Ngày ban hành</th>
+                    <th className="py-3 px-2 text-center w-[12%]">Trạng thái</th>
+                    <th className="py-3 px-2 text-center w-[9%]">Ngày tạo</th>
+                    <th className="py-3 px-3 text-right w-[5%]">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm">
@@ -441,26 +460,34 @@ export const AdminDashboardPage: React.FC = () => {
 
                     return (
                       <tr key={doc.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3.5 px-4 sm:px-6 font-semibold text-slate-800 max-w-xs sm:max-w-md truncate">
-                          {doc.title}
+                        <td
+                          className="py-3 px-3 sm:px-4 font-semibold text-slate-800 text-xs sm:text-sm truncate"
+                          title={doc.title}
+                        >
+                          {formatDocTitle(doc.title)}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 capitalize">
-                          {doc.doc_type}
+                        <td className="py-3 px-2 whitespace-nowrap">
+                          <span
+                            className="inline-block px-2 py-0.5 text-xs rounded-md bg-slate-100 text-slate-700 font-medium truncate max-w-full"
+                            title={doc.doc_type}
+                          >
+                            {getDocTypeBadge(doc.doc_type)}
+                          </span>
                         </td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className="px-2 py-0.5 text-xs font-semibold uppercase rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                        <td className="py-3 px-2 text-center whitespace-nowrap">
+                          <span className="px-1.5 py-0.5 text-[11px] font-semibold uppercase rounded bg-slate-100 text-slate-700 border border-slate-200">
                             {doc.file_type || doc.file_extension || 'FILE'}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0F2A4D]/10 text-[#0F2A4D] border border-[#0F2A4D]/15">
+                        <td className="py-3 px-2 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#0F2A4D]/10 text-[#0F2A4D] border border-[#0F2A4D]/15">
                             {doc.chunk_count || 0} chunks
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                        <td className="py-3 px-2 text-slate-600 text-xs text-center whitespace-nowrap">
                           {doc.issued_date ? new Date(doc.issued_date).toLocaleDateString('vi-VN') : '—'}
                         </td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">
+                        <td className="py-3 px-2 text-center whitespace-nowrap">
                           <select
                             value={doc.status}
                             onChange={(e) =>
@@ -470,30 +497,31 @@ export const AdminDashboardPage: React.FC = () => {
                               )
                             }
                             disabled={updatingStatusId === doc.id}
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-all ${doc.status === 'active'
+                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-all ${
+                              doc.status === 'active'
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                                 : doc.status === 'processing'
                                   ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                                   : doc.status === 'failed'
                                     ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
                                     : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
-                              } ${updatingStatusId === doc.id ? 'opacity-50 cursor-wait' : ''}`}
+                            } ${updatingStatusId === doc.id ? 'opacity-50 cursor-wait' : ''}`}
                             title="Bấm để chuyển đổi trạng thái tài liệu"
                           >
                             <option value="active">Hoạt động</option>
                             <option value="archived">Lưu trữ</option>
                           </select>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-500 text-xs whitespace-nowrap">
+                        <td className="py-3 px-2 text-slate-500 text-xs text-center whitespace-nowrap">
                           {new Date(doc.created_at).toLocaleDateString('vi-VN')}
                         </td>
-                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
+                        <td className="py-3 px-3 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
                             <a
                               href={downloadUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1.5 text-slate-400 hover:text-[#0F2A4D] hover:bg-[#0F2A4D]/5 rounded-lg transition"
+                              className="p-1 text-slate-400 hover:text-[#0F2A4D] hover:bg-[#0F2A4D]/5 rounded transition"
                               title="Xem / Tải file"
                             >
                               <ExternalLink className="w-4 h-4" />
@@ -501,7 +529,7 @@ export const AdminDashboardPage: React.FC = () => {
 
                             <button
                               onClick={() => setDeleteConfirmId(doc.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
                               title="Xóa tài liệu"
                             >
                               <Trash2 className="w-4 h-4" />
