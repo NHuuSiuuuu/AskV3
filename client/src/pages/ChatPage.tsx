@@ -32,10 +32,13 @@ export const ChatPage: React.FC = () => {
     return true;
   });
 
-  // Model được chọn: "flash" hoặc "pro" (lưu vào localStorage để ghi nhớ)
+  // Model được chọn: mặc định là gemini-3.1-flash-lite (lưu vào localStorage để ghi nhớ)
   const [selectedModel, setSelectedModel] = useState<any>(() => {
     const saved = localStorage.getItem("preferred_chat_model");
-    return saved || "gemini-3.5-flash";
+    if (!saved || saved === "gemini-3.5-flash" || saved === "gemini-3.7-flash") {
+      return "gemini-3.1-flash-lite";
+    }
+    return saved;
   });
 
   const handleModelChange = (model: any) => {

@@ -10,28 +10,28 @@ export interface ModelOption {
 }
 export const DEFAULT_CHAT_MODELS: ModelOption[] = [
   {
-    id: "gemini-3.8-flash",
-    name: "Gemini 3.8 Flash",
-    shortName: "3.8 Flash",
-    description: "Cân bằng tốc độ và chất lượng, phù hợp tra cứu tài liệu.",
-  },
-  {
-    id: "gemini-3.7-flash",
-    name: "Gemini 3.7 Flash",
-    shortName: "3.7 Flash",
-    description: "Hỗ trợ phân tích và tổng hợp thông tin từ tài liệu.",
-  },
-  {
-    id: "gemini-3.5-flash",
-    name: "Gemini 3.5 Flash",
-    shortName: "3.5 Flash",
-    description: "Phù hợp với các câu hỏi và tác vụ tra cứu thông thường.",
-  },
-  {
     id: "gemini-3.1-flash-lite",
     name: "Gemini 3.1 Flash Lite",
     shortName: "3.1 Lite",
-    description: "Ưu tiên phản hồi nhanh cho những câu hỏi đơn giản.",
+    description: "Tốc độ phản hồi cực nhanh, quota lớn (500 lượt/ngày).",
+  },
+  {
+    id: "gemini-3.5-flash-lite",
+    name: "Gemini 3.5 Flash Lite",
+    shortName: "3.5 Lite",
+    description: "Phân tích và tổng hợp thông tin tốt, quota 500 lượt/ngày.",
+  },
+  {
+    id: "gemini-3.8-flash",
+    name: "Gemini 3.8 Flash",
+    shortName: "3.8 Flash",
+    description: "Mô hình thế hệ mới chất lượng cao (giới hạn 20 lượt/ngày).",
+  },
+  {
+    id: "gemini-3.6-flash",
+    name: "Gemini 3.6 Flash",
+    shortName: "3.6 Flash",
+    description: "Phù hợp tra cứu chi tiết chuyên sâu (giới hạn 20 lượt/ngày).",
   },
 ];
 
