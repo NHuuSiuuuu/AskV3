@@ -2,7 +2,9 @@
 .env
 .env.*
 !.env.example
-storage/
+storage/*
+!storage/documents/
+!storage/documents/*.pdf
 uploads/
 dist/
 coverage/
