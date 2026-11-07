@@ -197,7 +197,9 @@ export const adminAuthApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-   
+    if (res?.token) {
+      cookieUtils.set(ADMIN_COOKIE_NAME, res.token);
+    }
     return res;   
   },
 

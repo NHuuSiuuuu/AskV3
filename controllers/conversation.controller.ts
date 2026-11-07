@@ -51,11 +51,11 @@ export const chat = async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;
     const { question, model } = req.body;
-    let sessionId = (req as any).cookies?.session_id;
+    let sessionId = req.body.sessionId || (req as any).cookies?.session_id;
     console.log("conversationId", conversationId);
     console.log("question", question);
     console.log("model", model);
-    console.log("sessionId", req.cookies?.session_id);
+    console.log("sessionId", sessionId);
 
     // Bước 1: Validate dữ liệu đầu vào
     if (!question || typeof question !== "string" || !question.trim()) {

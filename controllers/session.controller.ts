@@ -14,7 +14,8 @@ export const create = async (req: Request, res: Response) => {
     res.cookie("session_id", session.id, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
     });
 
