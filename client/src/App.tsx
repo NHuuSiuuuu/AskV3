@@ -14,6 +14,7 @@ export function App() {
 
         {/* Trang đăng nhập quản trị viên */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/login" element={<LoginPage />} />
 
         {/* Trang Dashboard Quản trị tài liệu (Được bảo vệ bởi ProtectedRoute) */}
         <Route
