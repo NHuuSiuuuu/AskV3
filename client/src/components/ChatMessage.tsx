@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { User, Copy, Check, ExternalLink } from 'lucide-react';
 import type { Message } from '../types';
 import faviLogo from '../assets/favi_light.png';
+import { adminDocumentApi } from '../services/api';
 
 interface ChatMessageProps {
   message: Message;
@@ -144,7 +145,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     <div key={src.documentId} className="flex items-center gap-2 min-w-0">
                       <span className="text-slate-400 select-none shrink-0">•</span>
                       <a
-                        href={`/documents/${src.documentId}/file`}
+                        href={adminDocumentApi.getDocumentFileUrl(src.documentId)}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={`${src.title} - Bấm để xem tài liệu gốc`}

@@ -9,6 +9,7 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
 import { PDFParse } from "pdf-parse";
 import { mkdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import mammoth from "mammoth";
@@ -335,10 +336,25 @@ export const getFile = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Không tìm thấy tài liệu." });
     }
     const doc = result.rows[0];
-    const absolutePath = path.resolve(doc.file_path);
+    const filename = path.basename(doc.file_path.replace(/\\/g, "/"));
+    const uploadDir = path.resolve(process.env.UPLOAD_DIR || "./storage/documents");
+    let targetPath = path.resolve(doc.file_path);
+    if (!existsSync(targetPath)) {
+      targetPath = path.join(uploadDir, filename);
+    }
+
+    if (!existsSync(targetPath)) {
+      return res.status(404).json({ message: "File tài liệu không tồn tại trên hệ thống lưu trữ." });
+    }
+
+    const ext = path.extname(targetPath).toLowerCase();
+    if (ext === ".pdf") {
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "inline");
+    }
 
     // Gửi file tài liệu đến client
-    return res.sendFile(absolutePath);
+    return res.sendFile(targetPath);
   } catch (error) {
     console.error("Lỗi tải file tài liệu:", error);
     return res.status(500).json({ message: "Không tải được file tài liệu." });
