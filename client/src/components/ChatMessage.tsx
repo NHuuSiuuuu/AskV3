@@ -125,8 +125,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         </div>
 
         {/* Nội dung tin nhắn của AI */}
-        <div className="flex-1 min-w-0">
-          <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-xs text-slate-800">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-xs text-slate-800 break-words overflow-hidden">
             <div className="markdown-body">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}

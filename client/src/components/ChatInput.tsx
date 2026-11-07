@@ -110,6 +110,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     setContent("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
+      textareaRef.current.blur();
     }
   };
 
@@ -133,7 +134,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           placeholder="Nhập câu hỏi..."
           rows={1}
           className="flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-slate-800 
-          placeholder-slate-500 text-sm sm:text-base resize-none py-1.5 px-1 leading-normal max-h-36 disabled:opacity-50"
+          placeholder-slate-500 text-base resize-none py-1.5 px-1 leading-normal max-h-36 disabled:opacity-50"
         />
 
         {/* Cụm công cụ bên phải: Chọn Option Model + Nút Send/Mic */}
