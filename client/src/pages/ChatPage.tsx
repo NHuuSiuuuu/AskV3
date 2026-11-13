@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Sparkles, AlertCircle, Menu, Plus } from "lucide-react";
+import { AlertCircle, Menu, Plus, LoaderCircle } from "lucide-react";
 import type { Conversation, Message } from "../types";
 import { sessionApi, conversationApi } from "../services/api";
 import { getStoredSessionId, storeSessionId } from "../utils/session";
@@ -382,7 +382,7 @@ export const ChatPage: React.FC = () => {
         >
           {loadingMessages ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-              <Sparkles className="w-6 h-6 animate-spin text-[#0F2A4D]" />
+              <LoaderCircle className="w-6 h-6 animate-spin text-[#0F2A4D]" />
               <span className="text-sm font-medium">
                 Đang tải lịch sử trò chuyện...
               </span>

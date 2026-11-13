@@ -76,22 +76,30 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Gom nhóm nguồn trích dẫn theo documentId (loại bỏ trùng lặp)
+  // Gom nhóm nguồn trích dẫn theo documentId (loại bỏ trùng lặp và tổng hợp số trang)
   const uniqueSources = useMemo(() => {
     if (!message.sources || message.sources.length === 0) return [];
 
     const map = new Map<number, {
       documentId: number;
       title: string;
+      pages: number[];
     }>();
 
     for (const src of message.sources) {
       if (!src || !src.documentId) continue;
-      if (!map.has(src.documentId)) {
+      const existing = map.get(src.documentId);
+      const pageNum = typeof src.page === 'number' && !isNaN(src.page) ? src.page : null;
+
+      if (!existing) {
         map.set(src.documentId, {
           documentId: src.documentId,
           title: formatCitationTitle(src.title) || `Tài liệu #${src.documentId}`,
+          pages: pageNum !== null ? [pageNum] : [],
         });
+      } else if (pageNum !== null && !existing.pages.includes(pageNum)) {
+        existing.pages.push(pageNum);
+        existing.pages.sort((a, b) => a - b);
       }
     }
 
@@ -142,18 +150,23 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0">
                   {uniqueSources.map((src) => (
-                    <div key={src.documentId} className="flex items-center gap-2 min-w-0">
+                    <div key={src.documentId} className="flex items-center gap-2 min-w-0 flex-wrap">
                       <span className="text-slate-400 select-none shrink-0">•</span>
                       <a
-                        href={adminDocumentApi.getDocumentFileUrl(src.documentId)}
+                        href={`${adminDocumentApi.getDocumentFileUrl(src.documentId)}${src.pages.length > 0 ? `#page=${src.pages[0]}` : ''}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`${src.title} - Bấm để xem tài liệu gốc`}
+                        title={`${src.title}${src.pages.length > 0 ? ` (Trang ${src.pages.join(', ')})` : ''} - Bấm để xem tài liệu gốc`}
                         className="group/link inline-flex items-center gap-1.5 min-w-0 max-w-full text-[#1E3A6B] hover:text-[#0F2A4D] font-medium underline underline-offset-4 decoration-[#1E3A6B]/50 hover:decoration-[#0F2A4D] transition-colors cursor-pointer"
                       >
                         <span className="truncate whitespace-nowrap">{src.title}</span>
                         <ExternalLink className="w-3.5 h-3.5 text-[#1E3A6B]/50 group-hover/link:text-[#0F2A4D] shrink-0 no-underline transition-colors" />
                       </a>
+                      {src.pages.length > 0 && (
+                        <span className="text-slate-500 text-xs sm:text-sm whitespace-nowrap shrink-0">
+                          (Trang {src.pages.join(', ')})
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>

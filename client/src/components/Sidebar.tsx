@@ -129,10 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Nút Cuộc trò chuyện mới */}
         <div className="p-3">
           <button
-            onClick={() => {
-              onNewChat();
-              onClose();
-            }}
+            onClick={onNewChat}
             className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 bg-[#0F2A4D] hover:bg-[#1E3A6B] text-white font-medium text-sm rounded-xl shadow-xs transition-all duration-150 group cursor-pointer"
           >
             <Plus className="w-4 h-4 text-[#fffff] group-hover:scale-110 transition-transform" />
@@ -163,7 +160,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={() => {
                       onSelect(conv.id);
-                      onClose();
+                      if (window.innerWidth < 768) {
+                        onClose();
+                      }
                     }}
                     className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl text-sm transition-all relative pr-9 cursor-pointer ${
                       isActive

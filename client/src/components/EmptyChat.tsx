@@ -64,7 +64,7 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
                   {item.title}
                 </h3>
               </div>
-              <p className="text-xs text-slate-600 leading-normal line-clamp-2">
+              <p className="text-[13px] text-slate-600 leading-normal line-clamp-2">
                 {item.desc}
               </p>
             </button>
