@@ -184,7 +184,7 @@ export const chat = async (req: Request, res: Response) => {
         ON d.id = c.document_id
       WHERE d.status = 'active'
       ORDER BY c.embedding <=> $1::vector
-      LIMIT 10
+      LIMIT 15
       `,
       [JSON.stringify(queryVector)],
     );
@@ -235,13 +235,13 @@ export const chat = async (req: Request, res: Response) => {
 
         ORDER BY keyword_score DESC
 
-        LIMIT 10
+        LIMIT 15
   `,
       [keywordQuery],
     );
 
     const keywordChunk = keywordResult.rows;
-    console.log("keywordChunk", keywordChunk);
+    // console.log("keywordChunk", keywordChunk);
 
     const RRF_K = 60;
     const chunkMap = new Map<number, any>();
@@ -250,7 +250,7 @@ export const chat = async (req: Request, res: Response) => {
     for (let i = 0; i < semanticChunks.length; i++) {
       const chunk = semanticChunks[i];
       const semanticRank = i + 1;
-      const semanticScore = 1 / (RRF_K + semanticRank);
+      const semanticScore = 0.7 * (1 / (RRF_K + semanticRank));
       chunkMap.set(chunk.id, {
         ...chunk,
 
@@ -262,7 +262,7 @@ export const chat = async (req: Request, res: Response) => {
     for (let i = 0; i < keywordChunk.length; i++) {
       const chunk = keywordChunk[i];
       const keywordRank = i + 1;
-      const keywordScore = 1 / (RRF_K + keywordRank);
+      const keywordScore = 0.3 * (1 / (RRF_K + keywordRank));
 
       // Kiểm tra chunk cũ đã có chưa nếu có thì chỉ cộng thêm điểm hybrid vào là được
       const existingChunk = chunkMap.get(chunk.id);
@@ -277,15 +277,15 @@ export const chat = async (req: Request, res: Response) => {
       }
     }
 
-    // Láy ra 5 chunk tốt nhất Sắp xếp giảm dần
+    // Láy ra 8 chunk tốt nhất Sắp xếp giảm dần
     const retrievedChunks = [...chunkMap.values()]
       .sort(
         (a, b) =>
           b.hybridScore - a.hybridScore ||
           Number(b.similarity) - Number(a.similarity),
       )
-      .slice(0, 5);
-
+      .slice(0, 8);
+console.log("retrievedChunks",retrievedChunks)
     // Bước 7: Ghép các chunk thành context
     const context = retrievedChunks
       .map(
@@ -320,6 +320,12 @@ export const chat = async (req: Request, res: Response) => {
     let answer: string;
     if (typeof aiResponse.content === "string") {
       answer = aiResponse.content;
+    } else if (Array.isArray(aiResponse.content)) {
+      answer = aiResponse.content
+        .map((part: any) =>
+          typeof part === "string" ? part : part?.text || "",
+        )
+        .join("");
     } else {
       answer = JSON.stringify(aiResponse.content);
     }
