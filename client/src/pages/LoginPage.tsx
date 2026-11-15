@@ -39,16 +39,6 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F6F8FB] flex flex-col justify-center items-center px-4 py-12">
-      {/* Nút quay lại trang chat */}
-      <div className="w-full max-w-md mb-6">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#0F2A4D] transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Quay lại trang hỏi đáp H-Ask</span>
-        </Link>
-      </div>
 
       <div className="w-full max-w-md bg-white border border-[#CBD5E1]/90 rounded-2xl shadow-sm p-6 sm:p-8">
         {/* Header Form */}
@@ -129,16 +119,10 @@ export const LoginPage: React.FC = () => {
                 <span>Đang xác thực...</span>
               </>
             ) : (
-              <span>Đăng nhập vào bảng điều khiển</span>
+              <span>Đăng nhập</span>
             )}
           </button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-          <p className="text-xs text-slate-400">
-            Hệ thống quản lý nội bộ H-Ask Academic System
-          </p>
-        </div>
       </div>
     </div>
   );

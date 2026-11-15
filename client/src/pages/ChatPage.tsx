@@ -410,7 +410,7 @@ export const ChatPage: React.FC = () => {
                       <div className="flex gap-1.5 items-center">
                         <span className="w-2 h-2 rounded-full bg-[#0F2A4D] animate-bounce"></span>
                         <span className="w-2 h-2 rounded-full bg-[#0F2A4D] animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-2 h-2 rounded-full bg-[#D4AF7C] animate-bounce [animation-delay:0.4s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#0F2A4D] animate-bounce [animation-delay:0.4s]"></span>
                       </div>
                     </div>
                   </div>
