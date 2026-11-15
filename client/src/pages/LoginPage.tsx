@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { adminAuthApi } from '../services/api';
 import logoNgang from '../assets/logo.png';
 
