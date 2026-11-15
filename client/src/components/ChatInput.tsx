@@ -133,7 +133,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           disabled={loading || disabled}
           placeholder="Nhập câu hỏi..."
           rows={1}
-          className="flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-slate-800 
+          className="flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-[#1f1f1f] 
           placeholder-slate-500 text-base resize-none py-1.5 px-1 leading-normal max-h-36 disabled:opacity-50"
         />
 
@@ -148,8 +148,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               aria-haspopup="true"
               aria-expanded={isMenuOpen}
               className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition cursor-pointer select-none ${isMenuOpen
-                ? "bg-slate-200 text-slate-900"
-                : "text-slate-700 hover:text-slate-900 hover:bg-slate-200/60"
+                ? "bg-slate-200 text-[#1f1f1f]"
+                : "text-[#1f1f1f] hover:text-[#1f1f1f] hover:bg-slate-200/60"
                 }`}
               title="Chọn mô hình AI"
             >
@@ -179,7 +179,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span
-                              className={`text-sm font-semibold ${isSelected ? "text-[#0F2A4D]" : "text-slate-800"}`}
+                              className={`text-sm font-semibold ${isSelected ? "text-[#0F2A4D]" : "text-[#1f1f1f]"}`}
                             >
                               {m.name}
                             </span>

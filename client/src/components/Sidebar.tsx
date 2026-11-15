@@ -167,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl text-sm transition-all relative pr-9 cursor-pointer ${
                       isActive
                         ? 'bg-[#0F2A4D]/10 text-[#0F2A4D] font-semibold border-l-2 border-[#D4AF7C] shadow-2xs'
-                        : 'text-slate-700 hover:bg-slate-200/60'
+                        : 'text-[#1f1f1f] hover:bg-slate-200/60'
                     }`}
                   >
                     <MessageSquare

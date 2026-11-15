@@ -326,7 +326,7 @@ export const ChatPage: React.FC = () => {
                 alt="H-Ask"
                 className="w-6 h-6 object-contain flex-shrink-0"
               />
-              <span className="font-semibold text-slate-800 text-sm truncate max-w-[200px] sm:max-w-xs">
+              <span className="font-semibold text-[#1f1f1f] text-sm truncate max-w-[200px] sm:max-w-xs">
                 {currentConversation?.title || "H-Ask"}
               </span>
             </div>

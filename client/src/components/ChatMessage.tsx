@@ -135,7 +135,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
         {/* Nội dung tin nhắn của AI */}
         <div className="flex-1 min-w-0 overflow-hidden">
-          <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-xs text-slate-800 break-words overflow-hidden">
+          <div className="bg-white border border-[#CBD5E1]/90 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-xs text-[#1f1f1f] break-words overflow-hidden">
             <div className="markdown-body">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
@@ -145,19 +145,19 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             {/* Khối trích dẫn: Mỗi tài liệu 1 dòng riêng biệt, dùng dấu ... nếu dài */}
             {uniqueSources.length > 0 && (
               <div className="mt-3.5 pt-2.5 border-t border-slate-100 text-sm">
-                <div className="font-semibold text-slate-700 mb-1.5 select-none">
+                <div className="font-semibold text-[#1f1f1f] mb-1.5 select-none">
                   Trích dẫn:
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0">
                   {uniqueSources.map((src) => (
-                    <div key={src.documentId} className="flex items-center gap-2 min-w-0 flex-wrap">
+                    <div key={src.documentId} className="flex items-center gap-2 min-w-0">
                       <span className="text-slate-400 select-none shrink-0">•</span>
                       <a
                         href={`${adminDocumentApi.getDocumentFileUrl(src.documentId)}${src.pages.length > 0 ? `#page=${src.pages[0]}` : ''}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={`${src.title}${src.pages.length > 0 ? ` (Trang ${src.pages.join(', ')})` : ''} - Bấm để xem tài liệu gốc`}
-                        className="group/link inline-flex items-center gap-1.5 min-w-0 max-w-full text-[#1E3A6B] hover:text-[#0F2A4D] font-medium underline underline-offset-4 decoration-[#1E3A6B]/50 hover:decoration-[#0F2A4D] transition-colors cursor-pointer"
+                        className="group/link inline-flex items-center gap-1.5 min-w-0 text-[#1E3A6B] hover:text-[#0F2A4D] font-medium underline underline-offset-4 decoration-[#1E3A6B]/50 hover:decoration-[#0F2A4D] transition-colors cursor-pointer"
                       >
                         <span className="truncate whitespace-nowrap">{src.title}</span>
                         <ExternalLink className="w-3.5 h-3.5 text-[#1E3A6B]/50 group-hover/link:text-[#0F2A4D] shrink-0 no-underline transition-colors" />

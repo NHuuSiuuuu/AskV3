@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, GraduationCap, FileCheck, HelpCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, Award, FileCheck } from 'lucide-react';
 
 interface EmptyChatProps {
   onSelectPrompt: (promptText: string) => void;
@@ -29,20 +29,20 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
       prompt: 'Thủ tục xin hoãn thi và nộp đơn xin nghỉ học tạm thời cần những giấy tờ gì?',
     },
     {
-      icon: HelpCircle,
-      title: 'Học phí & Chính sách miễn giảm',
-      desc: 'Thời hạn đóng học phí và các đối tượng được hỗ trợ học tập theo quy định.',
-      prompt: 'Thời hạn đóng học phí và các trường hợp được miễn giảm học phí ra sao?',
+      icon: Award,
+      title: 'Đánh giá Điểm rèn luyện',
+      desc: 'Khung điểm đánh giá thang 100 và tiêu chuẩn xếp loại rèn luyện.',
+      prompt: 'Quy định các khung điểm và tiêu chí xếp loại rèn luyện sinh viên HUMG như thế nào?',
     },
   ];
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4 mt-5 sm:p-8 max-w-4xl mx-auto my-auto text-center">
       {/* Lời chào */}
-      <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-3">
+      <h1 className="text-3xl sm:text-4xl font-bold text-[#1f1f1f] tracking-tight mb-3">
         Xin chào, tôi là <span className="bg-gradient-to-r from-[#0F2A4D] to-[#1E3A6B] bg-clip-text text-transparent">H-Ask</span>
       </h1>
-      <p className="text-base sm:text-lg text-slate-600 max-w-xl mb-10 leading-relaxed font-normal">
+      <p className="text-base sm:text-lg text-[#1f1f1f]/80 max-w-xl mb-10 leading-relaxed font-normal">
         Trợ lý AI tra cứu thông tin chính xác từ văn bản, quy chế và quy định của trường HUMG
       </p>
 
@@ -60,11 +60,11 @@ export const EmptyChat: React.FC<EmptyChatProps> = ({ onSelectPrompt }) => {
                 <div className="w-8 h-8 rounded-lg bg-[#0F2A4D]/5  text-[#0F2A4D] flex items-center justify-center flex-shrink-0 transition-colors">
                   <Icon className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-slate-800 group-hover:text-[#0F2A4D] text-sm transition-colors">
+                <h3 className="font-semibold text-[#1f1f1f] group-hover:text-[#0F2A4D] text-sm transition-colors">
                   {item.title}
                 </h3>
               </div>
-              <p className="text-[13px] text-slate-600 leading-normal line-clamp-2">
+              <p className="text-[13px] text-[#1f1f1f]/80 leading-normal line-clamp-2">
                 {item.desc}
               </p>
             </button>

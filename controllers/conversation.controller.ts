@@ -329,20 +329,35 @@ console.log("retrievedChunks",retrievedChunks)
     } else {
       answer = JSON.stringify(aiResponse.content);
     }
-    // Bước 11: Mảng sources để làm nguồn lưu cùng message assistant
-    const sources = retrievedChunks.map(
-      (chunk: {
-        document_id: number;
-        title: string;
-        page: number | null;
-        similarity: string | number;
-      }) => ({
-        documentId: chunk.document_id,
-        title: chunk.title,
-        page: chunk.page,
-        similarity: Number(chunk.similarity),
-      }),
-    );
+
+    // Bước 11: Xử lý cờ [NO_SOURCES] từ AI và kiểm tra trường hợp không dùng tài liệu
+    const hasNoSourcesFlag = answer.includes("[NO_SOURCES]");
+    const isNotFoundAnswer =
+      answer.includes("Tôi chưa tìm thấy thông tin này trong tài liệu") ||
+      answer.includes("không tìm thấy thông tin trong tài liệu");
+
+    // Xóa cờ [NO_SOURCES] khỏi answer trước khi lưu DB và gửi cho client
+    if (hasNoSourcesFlag) {
+      answer = answer.replace(/\[NO_SOURCES\]/g, "").trim();
+    }
+
+    // Mảng sources: Chỉ đính kèm trích dẫn khi câu trả lời thực sự sử dụng tài liệu
+    const sources =
+      hasNoSourcesFlag || isNotFoundAnswer
+        ? []
+        : retrievedChunks.map(
+            (chunk: {
+              document_id: number;
+              title: string;
+              page: number | null;
+              similarity: string | number;
+            }) => ({
+              documentId: chunk.document_id,
+              title: chunk.title,
+              page: chunk.page,
+              similarity: Number(chunk.similarity),
+            }),
+          );
     // Bước 12: Lưu trữ vào database
     if (!conversationId) {
       // Khi AI đã trả lời thành công, tiến hành tạo conversation mới
