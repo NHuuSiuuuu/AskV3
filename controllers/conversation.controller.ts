@@ -285,17 +285,19 @@ export const chat = async (req: Request, res: Response) => {
           Number(b.similarity) - Number(a.similarity),
       )
       .slice(0, 8);
-console.log("retrievedChunks",retrievedChunks)
+// console.log("retrievedChunks",retrievedChunks)
     // Bước 7: Ghép các chunk thành context
     const context = retrievedChunks
       .map(
         (chunk: {
+          document_id: number;
           title: string;
           content: string;
           page: number | null;
           doc_type: string;
         }) => {
           return `
+            [Mã tài liệu: ${chunk.document_id}]
             Tên tài liệu: ${chunk.title}
             Loại tài liệu: ${chunk.doc_type}
             Trang: ${chunk.page ?? "Không xác định"}
@@ -330,22 +332,47 @@ console.log("retrievedChunks",retrievedChunks)
       answer = JSON.stringify(aiResponse.content);
     }
 
-    // Bước 11: Xử lý cờ [NO_SOURCES] từ AI và kiểm tra trường hợp không dùng tài liệu
+    console.log("aiResponse", aiResponse)
+    // Bước 11: Xử lý cờ [NO_SOURCES] và trích xuất mã tài liệu [USED_DOCS] từ AI
     const hasNoSourcesFlag = answer.includes("[NO_SOURCES]");
     const isNotFoundAnswer =
       answer.includes("Tôi chưa tìm thấy thông tin này trong tài liệu") ||
       answer.includes("không tìm thấy thông tin trong tài liệu");
 
-    // Xóa cờ [NO_SOURCES] khỏi answer trước khi lưu DB và gửi cho client
-    if (hasNoSourcesFlag) {
-      answer = answer.replace(/\[NO_SOURCES\]/g, "").trim();
+    // Bóc tách danh sách mã tài liệu AI thực sự lấy thông tin
+    const usedDocsMatch = answer.match(/\[USED_DOCS:\s*([0-9,\s]+)\]/i);
+    let usedDocIds: number[] = [];
+    if (usedDocsMatch && usedDocsMatch[1]) {
+      usedDocIds = usedDocsMatch[1]
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !isNaN(n));
+    }
+
+    // Xóa sạch cờ [NO_SOURCES] và [USED_DOCS: ...] trước khi lưu DB và trả về client
+    answer = answer
+      .replace(/\[NO_SOURCES\]/g, "")
+      .replace(/\[USED_DOCS:[^\]]*\]/gi, "")
+      .trim();
+    console.log("answer", answer)
+      
+
+    // Lọc chỉ giữ lại những chunk thuộc tài liệu mà AI thực sự dùng
+    let filteredChunks = retrievedChunks;
+    if (usedDocIds.length > 0) {
+      const matched = retrievedChunks.filter((chunk: { document_id: number }) =>
+        usedDocIds.includes(chunk.document_id),
+      );
+      if (matched.length > 0) {
+        filteredChunks = matched;
+      }
     }
 
     // Mảng sources: Chỉ đính kèm trích dẫn khi câu trả lời thực sự sử dụng tài liệu
     const sources =
       hasNoSourcesFlag || isNotFoundAnswer
         ? []
-        : retrievedChunks.map(
+        : filteredChunks.map(
             (chunk: {
               document_id: number;
               title: string;
