@@ -510,7 +510,6 @@ export const AdminDashboardPage: React.FC = () => {
                           >
                             <option value="active">Hoạt động</option>
                             <option value="archived">Lưu trữ</option>
-                            <option value="false">Lưu trữ</option>
                           </select>
                         </td>
                         <td className="py-3 px-2 text-slate-500 text-xs text-center whitespace-nowrap">
